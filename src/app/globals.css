@@ -1,0 +1,85 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-poppins: var(--font-poppins), sans-serif;
+
+  --color-brand-50: #ffffff;
+  --color-brand-100: #f7f7f7;
+  --color-brand-200: #efefef;
+  --color-brand-300: #e8e8e8;
+  --color-brand-400: #d8d8d8;
+  --color-brand-500: #bcbcbc;
+  --color-brand-600: #aaaaaa;
+  --color-brand-700: #777777;
+  --color-brand-800: #5c5c5c;
+  --color-brand-900: #363636;
+  --color-brand-925: #323232;
+  --color-brand-950: #262626;
+  --color-brand-975: #242424;
+  --color-brand-990: #1e1e1e;
+  --color-brand-1000: #141414;
+
+  --color-success: #07c472;
+}
+
+@layer utilities {
+  .surface-brand-100 {
+    @apply border bg-brand-100 dark:bg-brand-990 border-brand-300 dark:border-brand-900;
+  }
+
+  .surface-brand-100-hover {
+    @apply hover:bg-brand-50 dark:hover:bg-brand-950;
+  }
+
+  .surface-brand-100-focus {
+    @apply focus:bg-brand-50 dark:focus:bg-brand-950;
+  }
+
+  textarea {
+    scrollbar-color: #d8d8d8 transparent;
+    scrollbar-width: thin;
+  }
+
+  .dark textarea {
+    scrollbar-color: #707070 transparent;
+    scrollbar-width: thin;
+  }
+
+  textarea:hover {
+    scrollbar-color: #d8d8d8 transparent;
+    scrollbar-width: thin;
+  }
+
+  .dark textarea:hover {
+    scrollbar-color: #707070 transparent;
+    scrollbar-width: thin;
+  }
+
+  /* Oculta no Chrome, Safari, Edge */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  /* Oculta no IE, Edge e Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none;  /* IE e Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+}
+
+@layer base {
+  body {
+    @apply font-poppins text-brand-975 dark:text-white bg-white dark:bg-brand-990;
+  }
+}
+
+@keyframes music-bar {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.5); }
+}
+
+.animate-music-bar {
+  animation: music-bar 0.8s ease-in-out infinite;
+}
