@@ -21,7 +21,7 @@ const Chat = ({
   const CHAT_FORM_ID = "chat-form-input";
 
   return (
-    <Box flexDirection="col" className="w-full h-full">
+    <Box gap={2} flexDirection="col" className="w-full h-full">
       <ChatMessages
         messages={messages}
         isLoading={isLoading}

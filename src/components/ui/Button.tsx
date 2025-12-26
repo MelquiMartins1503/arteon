@@ -13,13 +13,13 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "text-brand-50 dark:text-brand-975 bg-brand-975 dark:bg-brand-50 hover:opacity-90 font-medium",
+          "text-brand-50 dark:text-brand-975 bg-brand-975 dark:bg-brand-50 hover:opacity-90 focus:opacity-90 font-medium",
         outline:
-          "border bg-brand-100 dark:bg-brand-990 hover:bg-brand-50 dark:hover:bg-brand-950 border-brand-300 dark:border-brand-900 text-brand-700 dark:text-brand-600 hover:text-brand-975 dark:hover:text-brand-50",
+          "border bg-brand-100 dark:bg-brand-990 hover:bg-brand-50 focus:bg-brand-50 dark:hover:bg-brand-950 dark:focus:bg-brand-950 border-brand-300 dark:border-brand-900 text-brand-700 dark:text-brand-600 hover:text-brand-975 focus:text-brand-975 dark:hover:text-brand-50 dark:focus:text-brand-50",
         ghost:
-          "text-brand-800 dark:text-brand-600 hover:text-brand-975 dark:hover:text-brand-50 hover:bg-brand-200 dark:hover:bg-brand-925",
+          "text-brand-800 dark:text-brand-600 hover:text-brand-975 focus:text-brand-975 dark:hover:text-brand-50 dark:focus:text-brand-50 hover:bg-brand-200 focus:bg-brand-200 dark:hover:bg-brand-925 dark:focus:bg-brand-925",
         primary:
-          "text-brand-975 dark:text-brand-50 bg-brand-300 dark:bg-brand-950 hover:bg-brand-200 dark:hover:bg-brand-900",
+          "text-brand-975 dark:text-brand-50 bg-brand-300 dark:bg-brand-950 hover:bg-brand-200 focus:bg-brand-200 dark:hover:bg-brand-900 dark:focus:bg-brand-900",
       },
       size: {
         xs: "h-8 text-xs gap-1",

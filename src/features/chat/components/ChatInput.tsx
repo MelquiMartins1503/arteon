@@ -9,7 +9,7 @@ import {
   Plus,
   Sparkles,
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Box } from "@/components/ui/Box";
 import Button from "@/components/ui/Button";
@@ -50,6 +50,15 @@ export const ChatInput = ({
   const isMeta = watch("isMeta");
   const generateSuggestions = watch("generateSuggestions");
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   // Notify parent about validity changes
   useEffect(() => {
     if (onValidityChange) {
@@ -82,7 +91,7 @@ export const ChatInput = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey && !isMobile) {
       e.preventDefault();
       handleSubmit(onSubmit)();
     }
@@ -92,7 +101,7 @@ export const ChatInput = ({
     <Box
       alignItems="end"
       justifyContent="end"
-      className="z-50 min-h-[106px] max-h-58.5 h-auto rounded-3xl w-full"
+      className="z-50 min-h-26.5 max-h-58.5 h-auto rounded-4xl w-full"
     >
       <Box
         alignItems="center"

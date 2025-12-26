@@ -63,14 +63,14 @@ export const ChatMessage = ({
       gap={2}
       className={cn(
         "w-full group",
-        isUser ? "flex-row-reverse items-start" : "flex-row",
+        isUser ? "flex-row-reverse items-start" : "flex-col",
       )}
     >
       {!isUser && <ChatAvatar />}
 
       {isUser && (
         <Box
-          className={cn("group p-4 rounded-full max-w-full surface-brand-100")}
+          className={cn("group p-4 rounded-4xl max-w-full surface-brand-100")}
         >
           <ChatCollapsibleMessage
             content={message.content}

@@ -12,10 +12,10 @@ export const Header: React.FC = () => {
       as="header"
       alignItems="center"
       justifyContent="between"
-      className="w-full h-16"
+      className="w-full h-12"
     >
       <Link href="/">
-        <Typography size="4xl" weight="medium">
+        <Typography size="3xl" weight="medium">
           Arteon
         </Typography>
       </Link>
@@ -28,10 +28,15 @@ export const Header: React.FC = () => {
             alignItems="center"
             justifyContent="center"
           >
-            <Box className="rounded-full min-w-14 min-h-14 bg-brand-500"></Box>
+            <Box className="rounded-full min-w-12 min-h-12 bg-brand-500"></Box>
           </Box>
         </DropdownMenu.Trigger>
-        <DropdownMenu.Content align="end" side="bottom">
+        <DropdownMenu.Content
+          align="end"
+          side="bottom"
+          className="min-w-56 p-2"
+          sideOffset={10}
+        >
           <DropdownMenu.Item>
             <NextThemeTrigger />
           </DropdownMenu.Item>

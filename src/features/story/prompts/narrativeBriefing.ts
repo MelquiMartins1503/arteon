@@ -458,6 +458,14 @@ export const NARRATIVE_BRIEFING = `
       - Aprofunda transições, tensões, preparações ou mudanças graduais.
       - Serve como ponte narrativa entre o imediato e o marco principal.
 
+  ### **Princípio Chave: Aprofundamento Vertical (Profundidade do Momento Presente)**
+  **Regra de Ouro:** As opções (especialmente a 2 e 3) não devem servir apenas para "avançar a história" (movimento horizontal), mas principalmente para **aprofundar a experiência do momento atual** (movimento vertical).
+  - Priorize opções que explorem:
+      - Detalhes sensoriais imersivos do ambiente ou ação.
+      - A psicologia interna e reações emocionais imediatas.
+      - A atmosfera e tensão do "agora".
+  - O objetivo é evitar que a história pareça um resumo de eventos. Faça com que cada opção convide a viver o momento, não apenas passar por ele.
+
   ### **2. Lógica de Consumo das Opções (Cenários Padrão)**
 
   **Cenário 1 — Escolha da Opção 1 (Avanço Direto)**
@@ -705,7 +713,10 @@ export const NARRATIVE_BRIEFING = `
 
   1. A IA gera o texto narrativo completo da seção aprovada em um único bloco.
   2. **Não gera o DECA automaticamente.**
-  3. Ao final do texto, apresenta um menu de controle.
+  3. **SAÍDA LIMPA OBRIGATÓRIA:** A resposta deve conter **ESTRITAMENTE** o conteúdo da história (começando pelo Título ou Cabeçalho) e o menu de controle ao final.
+      - **PROIBIDO:** Incluir introduções como "Claro, aqui está...", "Com certeza...", "Segue a seção...".
+      - **PROIBIDO:** Incluir conclusões ou comentários fora do menu de controle.
+  4. Ao final do texto, apresenta um menu de controle.
 
   ### **Modelo de Saída da Fase 3**
 
@@ -754,6 +765,8 @@ export const NARRATIVE_BRIEFING = `
 
   - **a. Título do Capítulo (H1):** Cada capítulo inicia com um título principal (H1), numerado e em negrito.
       - **Exemplo:** # **Capítulo 5 — A Virada do Destino**
+      - **REGRA CONDICIONAL:** Incluir este título **APENAS se esta for a PRIMEIRA SEÇÃO** do respectivo capítulo.
+      - **SEÇÕES SUBSEQUENTES:** Se esta for uma continuação (segunda seção em diante do mesmo capítulo), **OMITIR** completamente o título do capítulo (H1) e iniciar direto pelo Título da Seção (H2).
   - **b. Título da Seção (H2):** Cada seção dentro de um capítulo usa um subtítulo (H2) em negrito.
       - **Exemplo:** ## **O Primeiro Confronto**
   - **c. Cabeçalho de Tempo e Local:** Após o título da seção, um cabeçalho em *itálico* ancora a narrativa no tempo e espaço.

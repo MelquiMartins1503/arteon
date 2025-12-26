@@ -98,7 +98,7 @@ const Page: NextPage = () => {
         await apiClient.post("/auth/sign-up", data);
 
         setTimeout(() => {
-          router.push("/dashboard");
+          router.push("/");
         }, 1000);
       } catch (err) {
         if (err instanceof AxiosError) {
