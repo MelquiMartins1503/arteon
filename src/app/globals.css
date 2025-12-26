@@ -27,7 +27,7 @@
 
 @layer utilities {
   .surface-brand-100 {
-    @apply border bg-brand-100 dark:bg-brand-990 border-brand-300 dark:border-brand-900;
+    @apply border bg-brand-100 dark:bg-brand-990! border-brand-300 dark:border-brand-900;
   }
 
   .surface-brand-100-hover {
@@ -64,8 +64,8 @@
   }
   /* Oculta no IE, Edge e Firefox */
   .no-scrollbar {
-    -ms-overflow-style: none;  /* IE e Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none; /* IE e Edge */
+    scrollbar-width: none; /* Firefox */
   }
 }
 
@@ -76,8 +76,13 @@
 }
 
 @keyframes music-bar {
-  0%, 100% { transform: scaleY(1); }
-  50% { transform: scaleY(1.5); }
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(1.5);
+  }
 }
 
 .animate-music-bar {
