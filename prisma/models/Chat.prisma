@@ -1,0 +1,55 @@
+model ConversationHistory {
+    id Int @id @default(autoincrement())
+    uuid String @unique @default(uuid()) @db.Uuid
+
+    customPrompt String?
+
+    messages Message[]
+
+    storyId Int @unique
+    story Story @relation(fields: [storyId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+
+    @@map("conversation_history")
+    @@schema("public")
+}
+
+enum MessageRole {
+    USER
+    MODEL
+
+    @@schema("public")
+}
+
+model Message {
+    id Int @id @default(autoincrement())
+    uuid String @unique @default(uuid()) @db.Uuid
+
+    role MessageRole @default(USER)
+    content String
+
+    summary String?
+    audioUrl String?
+
+    important Boolean @default(false)
+    isMeta Boolean @default(false)
+    generateSuggestions Boolean @default(false)
+
+    conversationHistoryId Int
+    conversationHistory ConversationHistory @relation(fields: [conversationHistoryId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    @@index([conversationHistoryId])
+
+    @@index([createdAt])
+    @@index([important])
+
+
+    @@map("messages")
+    @@schema("public")
+}

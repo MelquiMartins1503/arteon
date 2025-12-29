@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: arteon_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: arteon_db
+    ports:
+      - "5432:5432"
+    # tmpfs ensures data is stored in memory and wiped on container stop/restart
+    tmpfs:
+      - /var/lib/postgresql/data
