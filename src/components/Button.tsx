@@ -106,15 +106,17 @@ export type ButtonProps<T extends ElementType = "button"> = BoxProps<T> &
     href?: string;
   };
 
-const getSpinnerColors = (variant: ButtonProps["variant"]) => {
+const getSpinnerClass = (variant: ButtonProps["variant"] = "default") => {
   switch (variant) {
+    case "default":
+      return "border-white/30 border-t-white dark:border-brand-900/30 dark:border-t-brand-900";
     case "ghost":
-      return {
-        border: "rgba(116, 116, 116, 0.3)",
-        borderTop: "rgb(116, 116, 116)",
-      };
+    case "ghost-secondary":
+    case "outline":
+    case "secondary":
+      return "border-brand-600/30 border-t-brand-600 dark:border-white/30 dark:border-t-white";
     default:
-      return { border: "rgba(255, 255, 255, 0.3)", borderTop: "#ffffff" };
+      return "border-brand-600/30 border-t-brand-600 dark:border-white/30 dark:border-t-white";
   }
 };
 
@@ -134,7 +136,7 @@ export const Button = <T extends ElementType = "button">({
   disabled,
   ...rest
 }: ButtonProps<T>) => {
-  const spinnerColors = getSpinnerColors(variant);
+  const spinnerClass = getSpinnerClass(variant);
 
   let Component = (as || motion.button) as ElementType;
   if (href && !as) {
@@ -165,6 +167,7 @@ export const Button = <T extends ElementType = "button">({
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
+          className={cn("rounded-full border-2", spinnerClass)}
           style={{
             width:
               size === "xs" || size === "icon-sm"
@@ -186,9 +189,6 @@ export const Button = <T extends ElementType = "button">({
                     : size === "xl"
                       ? 24
                       : 18,
-            border: `2px solid ${spinnerColors.border}`,
-            borderTop: `2px solid ${spinnerColors.borderTop}`,
-            borderRadius: "100%",
           }}
         />
       ) : (

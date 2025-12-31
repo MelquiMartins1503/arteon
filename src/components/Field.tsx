@@ -252,52 +252,52 @@ const TextAreaWrapper: FC<
   counterPosition = "inside",
   ...boxProps
 }) => {
-  const { error } = useField();
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [hasOverflow, setHasOverflow] = useState(false);
-  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
+    const { error } = useField();
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [hasOverflow, setHasOverflow] = useState(false);
+    const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  return (
-    <TextAreaContext.Provider
-      value={{
-        content: textAreaRef.current?.value || "", // Use valor do DOM ao invés de estado
-        setContent: () => {}, // Função vazia, não precisa mais
-        maxCharacters,
-        minRows,
-        maxRows,
-        expandedMaxRows,
-        isExpanded,
-        setIsExpanded,
-        hasOverflow,
-        setHasOverflow,
-        textAreaRef,
-        expandButtonPosition,
-        variant,
-        counterPosition,
-      }}
-    >
-      <Box
-        flexDirection={flexDirection}
-        className={cn(
-          "w-full transition-colors",
-          variant === "default" && [
-            "relative p-3 rounded-3xl",
-            "surface-brand-100 surface-brand-100-hover surface-brand-100-focus",
-            error && "border-red-500! dark:border-red-500!",
-          ],
-          variant === "minimal" && [
-            "group-hover:bg-brand-50 dark:group-hover:bg-brand-950",
-          ],
-          className,
-        )}
-        gap={1}
-        {...boxProps}
+    return (
+      <TextAreaContext.Provider
+        value={{
+          content: textAreaRef.current?.value || "", // Use valor do DOM ao invés de estado
+          setContent: () => { }, // Função vazia, não precisa mais
+          maxCharacters,
+          minRows,
+          maxRows,
+          expandedMaxRows,
+          isExpanded,
+          setIsExpanded,
+          hasOverflow,
+          setHasOverflow,
+          textAreaRef,
+          expandButtonPosition,
+          variant,
+          counterPosition,
+        }}
       >
-        {children}
-      </Box>
-    </TextAreaContext.Provider>
-  );
-};
+        <Box
+          flexDirection={flexDirection}
+          className={cn(
+            "w-full transition-colors",
+            variant === "default" && [
+              "relative p-3 rounded-3xl",
+              "surface-brand-100 surface-brand-100-hover surface-brand-100-focus",
+              error && "border-red-500! dark:border-red-500!",
+            ],
+            variant === "minimal" && [
+              "group-hover:bg-brand-50 dark:group-hover:bg-brand-950",
+            ],
+            className,
+          )}
+          gap={1}
+          {...boxProps}
+        >
+          {children}
+        </Box>
+      </TextAreaContext.Provider>
+    );
+  };
 
 const TextAreaInput = forwardRef<
   HTMLTextAreaElement,
@@ -315,6 +315,7 @@ const TextAreaInput = forwardRef<
     expandButtonPosition,
   } = useTextArea();
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   const adjustHeight = useCallback(
     (el: HTMLTextAreaElement) => {
       el.style.height = "auto";
@@ -328,10 +329,7 @@ const TextAreaInput = forwardRef<
         const hasOverflowNow = newHeight > maxHeight;
         setHasOverflow(hasOverflowNow);
 
-        // Auto-collapse if expanded and no longer overflowing
-        if (isExpanded && !hasOverflowNow) {
-          setIsExpanded(false);
-        }
+        setHasOverflow(hasOverflowNow);
       }
     },
     [maxRows, setHasOverflow, isExpanded, setIsExpanded],
@@ -377,9 +375,6 @@ const TextAreaInput = forwardRef<
 
   // Calculate height constraints based on expanded state
   const calculateMinHeight = () => {
-    if (isExpanded && expandedMaxRows) {
-      return `${expandedMaxRows * 1.5}rem`;
-    }
     return `${minRows * 1.5}rem`;
   };
 

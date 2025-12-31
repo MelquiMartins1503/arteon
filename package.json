@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "postinstall": "npm run prisma:build && prisma generate --schema=prisma/temp.prisma && rm -f prisma/temp.prisma",
+    "postinstall": "pnpm run prisma:build && prisma generate --schema=prisma/temp.prisma && node scripts/prisma-utils.js clean",
     "start": "next start",
     "lint": "biome check",
     "format": "biome format --write",
@@ -15,9 +15,9 @@
     "test:coverage": "vitest run --coverage",
     "analyze": "ANALYZE=true next build",
     "prepare": "husky",
-    "prisma:build": "cat prisma/schema.prisma prisma/models/*.prisma > prisma/temp.prisma",
-    "prisma:generate": "npm run prisma:build && npx prisma generate --schema=prisma/temp.prisma && rm prisma/temp.prisma",
-    "prisma:migrate:dev": "npm run prisma:build && npx prisma migrate dev --schema=prisma/temp.prisma && rm prisma/temp.prisma"
+    "prisma:build": "node scripts/prisma-utils.js build",
+    "prisma:generate": "pnpm run prisma:build && prisma generate --schema=prisma/temp.prisma && node scripts/prisma-utils.js clean",
+    "prisma:migrate:dev": "pnpm run prisma:build && prisma migrate dev --schema=prisma/temp.prisma && node scripts/prisma-utils.js clean"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.958.0",
