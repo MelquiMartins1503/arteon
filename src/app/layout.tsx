@@ -1,5 +1,6 @@
 import type React from "react";
 import "./globals.css";
+import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import { Toaster } from "sonner";
 import { Box } from "@/components/Box";
@@ -13,6 +14,14 @@ const poppins = Poppins({
   variable: "--font-poppins",
   display: "swap",
 });
+
+export const metadata: Metadata = {
+  title: "Arteon",
+  description: "Arteon - Sua plataforma de arte",
+  icons: {
+    icon: "/favicon.ico",
+  },
+};
 
 export default function RootLayout({
   children,
