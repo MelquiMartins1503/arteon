@@ -18,8 +18,13 @@ const Avatar = React.forwardRef<
     "loading",
   );
 
+  const contextValue = React.useMemo(
+    () => ({ status, setStatus }),
+    [status]
+  );
+
   return (
-    <AvatarContext.Provider value={{ status, setStatus }}>
+    <AvatarContext.Provider value={contextValue}>
       <div
         ref={ref}
         className={cn(
