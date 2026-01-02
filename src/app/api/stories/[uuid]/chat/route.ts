@@ -2,6 +2,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import {
+  buildBlockSummaryPrompt,
+  buildConsolidatedSummaryPrompt,
   buildInitialChatSystemPrompt,
   buildSuggestedPromptsPrompt,
   buildSummaryPrompt,
@@ -96,7 +98,7 @@ export async function POST(
           content: IDEALIZATION_END_MESSAGE_USER,
           role: "USER",
           conversationHistoryId: conversationHistoryWithMessages.id,
-          important: true, // Marco importante
+          important: false,
           isMeta: true, // Comando de sistema
         },
       });
@@ -107,7 +109,7 @@ export async function POST(
           content: IDEALIZATION_END_MESSAGE_MODEL,
           role: "MODEL",
           conversationHistoryId: conversationHistoryWithMessages.id,
-          important: true, // Marco importante
+          important: false,
           isMeta: true, // Comando de sistema
         },
       });
@@ -133,11 +135,11 @@ export async function POST(
       model: "gemini-2.5-pro",
     });
 
-    const RECENT_LIMIT = 15;
+    const _RECENT_LIMIT = 15;
     const MAX_MESSAGE_LENGTH = 1500;
-    const IMPORTANT_SUMMARY_THRESHOLD = 7500;
+    const _IMPORTANT_SUMMARY_THRESHOLD = 7500;
 
-    async function summarizeMessage(
+    async function _summarizeMessage(
       messageContent: string,
       genAI: GoogleGenerativeAI,
     ): Promise<string> {
@@ -167,11 +169,21 @@ export async function POST(
       }>,
       genAI: GoogleGenerativeAI,
     ) {
-      // 0. Filtrar mensagens interrompidas e suas perguntas correspondentes
+      // ========================================================================
+      // CONFIGURAÇÃO DO SISTEMA DE MEMÓRIA HIERÁRQUICA
+      // ========================================================================
+
+      const IMMEDIATE_MEMORY = 15; // Últimas 15 mensagens completas
+      const MID_TERM_BLOCK_SIZE = 10; // Blocos de 10 mensagens para resumo médio
+      const CONSOLIDATION_THRESHOLD = 50; // Acima de 50 mensagens antigas, criar resumo global
+
+      // ========================================================================
+      // FASE 0: FILTRAR MENSAGENS INTERROMPIDAS
+      // ========================================================================
+
       const interruptionContent = "*Geração interrompida pelo usuário.*";
       const skipIds = new Set<number>();
 
-      // First pass: identify messages to skip
       for (let i = 0; i < messages.length; i++) {
         const msg = messages[i];
         if (
@@ -180,7 +192,6 @@ export async function POST(
           msg.content === interruptionContent
         ) {
           skipIds.add(msg.id);
-          // Try to find and skip the previous user message
           const prevMsg = messages[i - 1];
           if (i > 0 && prevMsg && prevMsg.role === "USER") {
             skipIds.add(prevMsg.id);
@@ -188,64 +199,185 @@ export async function POST(
         }
       }
 
-      // Filtrar mensagens
       const cleanMessages = messages.filter((m) => !skipIds.has(m.id));
 
-      // 1. Identificar mensagens recentes (manter contexto completo)
-      const recentMessages = cleanMessages.slice(-RECENT_LIMIT);
-      const recentIds = new Set(recentMessages.map((m) => m.id));
+      // ========================================================================
+      // FASE 1: SEPARAR MEMÓRIA IMEDIATA (COMPLETA)
+      // ========================================================================
 
-      // 2. Identificar mensagens antigas
+      const recentMessages = cleanMessages.slice(-IMMEDIATE_MEMORY);
+      const recentIds = new Set(recentMessages.map((m) => m.id));
       const oldMessages = cleanMessages.filter((m) => !recentIds.has(m.id));
 
-      // 3. Processar/Resumir mensagens antigas
-      const processedOldMessages = await Promise.all(
-        oldMessages.map(async (message) => {
-          // Se é importante
-          if (message.important) {
-            // Se é longa e ainda não tem resumo, gerar resumo
-            if (
-              message.content.length > IMPORTANT_SUMMARY_THRESHOLD &&
-              !message.summary
-            ) {
-              const summary = await summarizeMessage(message.content, genAI);
+      // Se não há mensagens antigas, retornar apenas as recentes
+      if (oldMessages.length === 0) {
+        return recentMessages.map((message) => ({
+          role:
+            message.role === "USER" ? ("user" as const) : ("model" as const),
+          parts: [{ text: message.content }],
+        }));
+      }
 
-              // Salvar resumo no banco para reutilização
+      // ========================================================================
+      // FASE 2: PROCESSAR MEMÓRIA DE LONGO PRAZO (RESUMO CONSOLIDADO)
+      // ========================================================================
+
+      let consolidatedSummary: string | null = null;
+
+      if (oldMessages.length >= CONSOLIDATION_THRESHOLD) {
+        // Buscar resumo consolidado existente no primeiro bloco de mensagens antigas
+        const firstOldMessage = oldMessages[0];
+
+        if (!firstOldMessage) {
+          logger.warn("Primeira mensagem antiga não encontrada");
+        } else {
+          // Verificar se já existe um resumo consolidado salvo
+          // (usamos o campo summary da primeira mensagem antiga como cache)
+          if (firstOldMessage.summary?.startsWith("[CONSOLIDADO]")) {
+            consolidatedSummary = firstOldMessage.summary.replace(
+              "[CONSOLIDADO] ",
+              "",
+            );
+            logger.info("Usando resumo consolidado em cache");
+          } else {
+            // Gerar novo resumo consolidado de TODAS as mensagens antigas
+            logger.info(
+              `Gerando resumo consolidado de ${oldMessages.length} mensagens antigas`,
+            );
+
+            const summaryModel = genAI.getGenerativeModel({
+              model: "gemini-2.5-pro",
+            });
+
+            const consolidatedPrompt = buildConsolidatedSummaryPrompt(
+              oldMessages.map((m) => ({ role: m.role, content: m.content })),
+            );
+
+            const result =
+              await summaryModel.generateContent(consolidatedPrompt);
+            consolidatedSummary = result.response.text().trim();
+
+            // Salvar o resumo consolidado no banco (na primeira mensagem antiga)
+            await prismaClient.message.update({
+              where: { id: firstOldMessage.id },
+              data: { summary: `[CONSOLIDADO] ${consolidatedSummary}` },
+            });
+
+            logger.info("Resumo consolidado gerado e salvo");
+          }
+        }
+      }
+
+      // ========================================================================
+      // FASE 3: PROCESSAR MEMÓRIA DE MÉDIO PRAZO (BLOCOS RESUMIDOS)
+      // ========================================================================
+
+      const midTermMemory: Array<{ role: string; content: string }> = [];
+
+      if (oldMessages.length < CONSOLIDATION_THRESHOLD) {
+        // Se não atingiu o threshold para consolidação, processar em blocos
+
+        for (let i = 0; i < oldMessages.length; i += MID_TERM_BLOCK_SIZE) {
+          const block = oldMessages.slice(i, i + MID_TERM_BLOCK_SIZE);
+
+          // Verificar se alguma mensagem do bloco tem resumo de bloco
+          const blockWithSummary = block.find((m) =>
+            m.summary?.startsWith("[BLOCO]"),
+          );
+
+          if (blockWithSummary?.summary) {
+            // Usar resumo existente
+            midTermMemory.push({
+              role: "user",
+              content: blockWithSummary.summary.replace("[BLOCO] ", ""),
+            });
+          } else {
+            // Gerar resumo do bloco
+            const summaryModel = genAI.getGenerativeModel({
+              model: "gemini-2.5-pro",
+            });
+
+            const blockPrompt = buildBlockSummaryPrompt(
+              block.map((m) => ({ role: m.role, content: m.content })),
+            );
+
+            const result = await summaryModel.generateContent(blockPrompt);
+            const blockSummary = result.response.text().trim();
+
+            // Salvar resumo na primeira mensagem do bloco
+            const firstBlockMessage = block[0];
+            if (firstBlockMessage) {
               await prismaClient.message.update({
-                where: { id: message.id },
-                data: { summary },
+                where: { id: firstBlockMessage.id },
+                data: { summary: `[BLOCO] ${blockSummary}` },
               });
+            }
 
-              return { ...message, content: summary };
-            }
-            // Se já tem resumo, usar o resumo
-            else if (message.summary) {
-              return { ...message, content: message.summary };
-            }
-            // Se é curta, manter completa
-            else {
-              return message;
-            }
+            midTermMemory.push({
+              role: "user",
+              content: blockSummary,
+            });
           }
-          // Se não é importante, comprimir
-          else {
-            const compressed =
-              message.content.length > MAX_MESSAGE_LENGTH
-                ? `${message.content.substring(0, MAX_MESSAGE_LENGTH)}... [truncado]`
-                : message.content;
-            return { ...message, content: compressed };
-          }
-        }),
+        }
+      }
+
+      // ========================================================================
+      // FASE 4: MONTAR HISTÓRICO FINAL
+      // ========================================================================
+
+      const finalHistory: Array<{
+        role: "user" | "model";
+        parts: Array<{ text: string }>;
+      }> = [];
+
+      // 1. Adicionar resumo consolidado (se existir)
+      if (consolidatedSummary) {
+        finalHistory.push({
+          role: "user",
+          parts: [
+            {
+              text: `[MEMÓRIA DE LONGO PRAZO - Resumo da conversa anterior]\n\n${consolidatedSummary}`,
+            },
+          ],
+        });
+      }
+
+      // 2. Adicionar blocos de médio prazo (se existirem)
+      if (midTermMemory.length > 0) {
+        for (const mem of midTermMemory) {
+          finalHistory.push({
+            role: "user",
+            parts: [
+              {
+                text: `[MEMÓRIA DE MÉDIO PRAZO]\n\n${mem.content}`,
+              },
+            ],
+          });
+        }
+      }
+
+      // 3. Adicionar mensagens recentes completas
+      for (const message of recentMessages) {
+        finalHistory.push({
+          role:
+            message.role === "USER" ? ("user" as const) : ("model" as const),
+          parts: [{ text: message.content }],
+        });
+      }
+
+      logger.info(
+        {
+          totalMessages: cleanMessages.length,
+          oldMessages: oldMessages.length,
+          recentMessages: recentMessages.length,
+          hasConsolidatedSummary: !!consolidatedSummary,
+          midTermBlocks: midTermMemory.length,
+          finalHistorySize: finalHistory.length,
+        },
+        "Histórico otimizado construído",
       );
 
-      // 4. Combinar mensagens antigas processadas + mensagens recentes completas
-      const allProcessedMessages = [...processedOldMessages, ...recentMessages];
-
-      // 5. Mapear para formato Gemini
-      return allProcessedMessages.map((message) => ({
-        role: message.role === "USER" ? ("user" as const) : ("model" as const),
-        parts: [{ text: message.content }],
-      }));
+      return finalHistory;
     }
 
     // ============================================================================
@@ -304,13 +436,37 @@ export async function POST(
       logger.warn("Requisição abortada detectada após o loop de streaming.");
     }
 
+    // ============================================================================
+    // DETECÇÃO AUTOMÁTICA DE COMANDOS IMPORTANTES
+    // ============================================================================
+
+    // Detectar se a mensagem contém comandos importantes
+    const hasApproveCommand = prompt.includes("[APROVAR E SELAR ESBOÇO]");
+    const hasReviewCommand = prompt.includes("[REVISAR E CORRIGIR SEÇÃO]");
+
+    // Se contém algum comando, forçar important = true (sobrescreve o valor enviado)
+    const isImportantMessage =
+      hasApproveCommand || hasReviewCommand || important;
+
+    if (hasApproveCommand) {
+      logger.info(
+        "Comando [APROVAR E SELAR ESBOÇO] detectado - marcando mensagem como importante",
+      );
+    }
+
+    if (hasReviewCommand) {
+      logger.info(
+        "Comando [REVISAR E CORRIGIR SEÇÃO] detectado - marcando mensagem como importante",
+      );
+    }
+
     // Salvar mensagem do usuário
     await prismaClient.message.create({
       data: {
         content: prompt,
         role: "USER",
         conversationHistoryId: conversationHistoryWithMessages.id,
-        important: important,
+        important: isImportantMessage,
         isMeta: isMeta,
         generateSuggestions: generateSuggestions,
       },
@@ -344,7 +500,7 @@ export async function POST(
         content: responseText,
         role: "MODEL",
         conversationHistoryId: conversationHistoryWithMessages.id,
-        important: important, // Herdar flag de importante da mensagem do usuário
+        important: isImportantMessage, // Herdar flag de importante (incluindo detecção de comandos)
         isMeta: isMeta, // Herdar flag de meta da mensagem do usuário
       },
     });

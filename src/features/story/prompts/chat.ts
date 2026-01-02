@@ -116,6 +116,70 @@ export function buildSummaryPrompt(messageContent: string) {
 }
 
 /**
+ * Constrói o prompt para criar um resumo consolidado de múltiplas mensagens antigas.
+ * Este resumo serve como "memória de longo prazo" da conversa.
+ */
+export function buildConsolidatedSummaryPrompt(
+  messages: Array<{ role: string; content: string }>,
+) {
+  const conversationText = messages
+    .map((msg) => `[${msg.role}]: ${msg.content}`)
+    .join("\n\n");
+
+  return `
+    Você é um assistente especializado em criar resumos consolidados de conversas longas.
+    
+    Sua tarefa é criar um resumo ESTRUTURADO e COMPLETO da conversa abaixo, preservando:
+    
+    **INFORMAÇÕES ESSENCIAIS:**
+    - Todos os personagens mencionados (nomes, características, relações)
+    - Todos os locais e ambientações descritos
+    - Eventos principais da narrativa em ordem cronológica
+    - Decisões narrativas importantes tomadas pelo autor
+    - Regras do mundo/universo estabelecidas
+    - Temas e conceitos centrais discutidos
+    - Instruções ou diretrizes definidas pelo autor
+    
+    **FORMATO DO RESUMO:**
+    Use uma estrutura clara com tópicos e subtópicos. Seja conciso mas completo.
+    Máximo de 1000 palavras.
+    
+    **CONVERSA ORIGINAL:**
+    ${conversationText}
+    
+    **RESUMO CONSOLIDADO:**
+  `;
+}
+
+/**
+ * Constrói o prompt para resumir um bloco de mensagens (memória de médio prazo).
+ * Mais detalhado que o resumo individual, menos que o consolidado.
+ */
+export function buildBlockSummaryPrompt(
+  messages: Array<{ role: string; content: string }>,
+) {
+  const conversationText = messages
+    .map((msg) => `[${msg.role}]: ${msg.content}`)
+    .join("\n\n");
+
+  return `
+    Resuma o seguinte bloco de conversa preservando:
+    - Progressão da discussão/narrativa
+    - Decisões e escolhas feitas
+    - Informações importantes introduzidas
+    - Contexto necessário para continuidade
+    
+    Seja detalhado o suficiente para manter continuidade, mas conciso.
+    Máximo de 700 palavras.
+    
+    **CONVERSA:**
+    ${conversationText}
+    
+    **RESUMO DO BLOCO:**
+  `;
+}
+
+/**
  * Constrói o prompt para gerar sugestões de continuação para o usuário.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
