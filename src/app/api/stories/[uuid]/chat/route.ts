@@ -173,7 +173,7 @@ export async function POST(
       // CONFIGURAÇÃO DO SISTEMA DE MEMÓRIA HIERÁRQUICA
       // ========================================================================
 
-      const IMMEDIATE_MEMORY = 15; // Últimas 15 mensagens completas
+      const IMMEDIATE_MEMORY = 25; // Últimas 15 mensagens completas
       const MID_TERM_BLOCK_SIZE = 10; // Blocos de 10 mensagens para resumo médio
       const CONSOLIDATION_THRESHOLD = 50; // Acima de 50 mensagens antigas, criar resumo global
 
