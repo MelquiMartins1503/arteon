@@ -10,7 +10,7 @@ export const CHAT_CONFIG = {
    */
   memory: {
     /** Número de mensagens mais recentes mantidas completas no contexto */
-    immediateMessages: 12, // Reduzido de 25 → 12
+    immediateMessages: 20, // Reduzido de 25 → 12
 
     /** Tamanho do bloco para resumos de médio prazo */
     midTermBlockSize: 6, // Reduzido de 10 → 6
