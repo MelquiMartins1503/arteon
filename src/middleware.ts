@@ -91,20 +91,28 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // 3. Log de request bem-sucedido (passou pelo rate limit)
-  logger.info(
-    {
-      userId,
-      ip: clientIp,
-      path,
-      authenticated: isAuthenticated,
-      rateLimit: {
-        remaining: rateLimitResult.remaining,
-        limit: rateLimitResult.limit,
+  // 3. Log apenas situações relevantes ao invés de todas as requisições
+  // Para economizar em custos de logging e melhorar performance
+  const isNearRateLimit = rateLimitResult.remaining < 10;
+  const isAuthIssue = accessToken && !isAuthenticated;
+
+  if (isNearRateLimit || isAuthIssue) {
+    logger.warn(
+      {
+        userId,
+        ip: clientIp,
+        path,
+        authenticated: isAuthenticated,
+        rateLimit: {
+          remaining: rateLimitResult.remaining,
+          limit: rateLimitResult.limit,
+        },
       },
-    },
-    "Request processed",
-  );
+      isNearRateLimit
+        ? "Rate limit próximo do threshold"
+        : "Token inválido detectado",
+    );
+  }
 
   const publicRoute = publicRoutes.find((route) => path.startsWith(route.path));
 
