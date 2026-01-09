@@ -725,35 +725,36 @@ export const NARRATIVE_BRIEFING = `
   >     - **Secundários:** \`Mentor Sênior (via comunicação segura), Especialistas do Projeto (ou nomes genéricos como "Chefe de Pesquisa A").\`
   > - **Propósito:** Definir o elenco da cena, a quem o foco narrativo estará direcionado.
   > 
-  > **5. Foco Narrativo:** \`[Um parágrafo conciso que descreve o objetivo central da seção. O que ela pretende explorar ou alcançar em termos de enredo e desenvolvimento de personagens?]\`
+  > **5. Foco Narrativo:** \`[Um ou mais parágrafos detalhados que descrevem o objetivo central da seção. O que ela pretende explorar ou alcançar em termos de enredo, desenvolvimento de personagens, temas e atmosfera? Seja abrangente e rico em detalhes.]\`
   > 
-  > - **Conteúdo Esperado:** Uma frase principal que resume a "missão" da seção.
-  > - **Exemplo:** \`Explorar a mobilização de recursos para investigar um projeto secreto, identificando especialistas chave e planejando sua integração, ao mesmo tempo que aprofunda a motivação dos líderes centrais pela inovação.\`
-  > - **Propósito:** Estabelecer a intenção principal da seção, guiando a escrita e a avaliação.
+  > - **Conteúdo Esperado:** Múltiplos parágrafos que exploram em profundidade a "missão" da seção, abordando aspectos narrativos, emocionais, temáticos e atmosféricos. **Este campo deve ser substancial e rico em conteúdo para orientar uma escrita literária profunda.**
+  > - **Exemplo:** \`Explorar a mobilização de recursos para investigar um projeto secreto, identificando especialistas chave e planejando sua integração, ao mesmo tempo que aprofunda a motivação dos líderes centrais pela inovação. A seção deve equilibrar o aspecto pragmático da organização com as implicações filosóficas e éticas dessas decisões, revelando tensões internas e dilemas morais. O tom deve capturar a urgência da descoberta enquanto mantém a complexidade psicológica dos personagens, explorando suas reações emocionais e as dinâmicas de poder em jogo.\`
+  > - **Propósito:** Estabelecer a intenção principal da seção de forma rica e detalhada, guiando a escrita e a avaliação, e garantindo que a seção final seja substancial e profunda.
   > 
-  > **6. Resumo do Enredo (Estrutura em [Número] Partes):** \`[Detalhamento da progressão da narrativa, dividida em partes lógicas. Cada parte deve ter um "Enredo" e um "Objetivo" claro.]\`
+  > **6. Resumo do Enredo (Estrutura em [Número] Partes):** \`[Detalhamento da progressão da narrativa, dividida em partes lógicas. Cada parte deve ter um "Enredo" e um "Objetivo" claro. **IMPORTANTE:** O "Enredo" serve apenas como uma DESCRIÇÃO ORIENTADORA do que aquela parte irá abordar, não é o texto da seção em si. A seção narrativa final será muito mais rica, expandida e literária.]\`
   > 
-  > - **Conteúdo Esperado:** Uma divisão clara da seção em 4 a 14 partes (conforme a complexidade). Cada parte deve conter:
+  > - **Conteúdo Esperado:** Uma divisão clara da seção em 4 a 14 partes (conforme a complexidade). **Quanto mais partes, mais rico e longo será o conteúdo final.** Cada parte deve conter:
   >     - **Parte [Número]: [Título Descritivo da Parte]**
-  >         - **Enredo:** \`[2-4 frases que descrevem os eventos chave, interações e diálogos que acontecerão nesta parte específica.]\`
-  >         - **Objetivo:** \`[1-2 frases que explicam o propósito narrativo desta parte (ex: "Revelar nova informação", "Criar conflito", "Desenvolver personagem").]\`
+  >         - **Enredo:** \`[3-6 frases DESCRITIVAS que orientam sobre os eventos chave, interações, diálogos, atmosfera e dinâmicas que devem ser ABORDADOS nesta parte específica. Este campo é uma DIRETRIZ, não o texto final. A narrativa gerada será muito mais elaborada, detalhada e rica.]\`
+  >         - **Objetivo:** \`[2-4 frases que explicam em detalhe o propósito narrativo, temático e emocional desta parte (ex: "Revelar nova informação e explorar as implicações éticas", "Criar conflito interpessoal e aprofundar as tensões", "Desenvolver personagem através de introspecção e diálogo philosófico").]\`
   > - **Exemplo (para uma parte):**
   >     - **Parte 1: A Diretriz Central.**
-  >         - **Enredo:** \`Os líderes centrais, após uma descoberta recente, reúnem-se imediatamente com os chefes de inteligência e segurança em seu centro de comando. Eles apresentam os detalhes do projeto secreto e emitem diretrizes claras para investigar o grupo envolvido e seus avanços, exigindo informações detalhadas e planos de ação.\`
-  >         - **Objetivo:** \`Demonstrar a prioridade máxima do projeto secreto para os líderes e ativar os principais mecanismos de inteligência e segurança.\`
-  > - **Propósito:** Fornecer um roteiro detalhado para a escrita da seção, garantindo uma progressão lógica e o cumprimento dos objetivos narrativos.
+  >         - **Enredo:** \`Esta parte deve abordar a reunião imediata entre os líderes centrais e os chefes de inteligência e segurança no centro de comando, após uma descoberta recente. Devem ser apresentados os detalhes do projeto secreto de forma dramática e imersiva. As diretrizes para investigar o grupo envolvido devem ser emitidas com urgência e clareza, revelando a prioridade máxima dada ao assunto. A atmosfera deve capturar a tensão, a determinação e a gravidade do momento, com diálogos ricos e intercâmbios que revelem a dinâmica de poder e as personalidades envolvidas.\`
+  >         - **Objetivo:** \`Demonstrar a prioridade máxima do projeto secreto para os líderes, estabelecer a urgência da situação, ativar os principais mecanismos de inteligência e segurança, e revelar as dinâmicas de liderança e tomada de decisão em momentos críticos.\`
+  > - **Propósito:** Fornecer um roteiro detalhado e orientador para a escrita da seção, garantindo uma progressão lógica, o cumprimento dos objetivos narrativos, e **servindo como base para uma expansão literária rica que resultará em uma seção de no mínimo 7.000 caracteres**.
   > 
-  > **7. Conexão com o Núcleo Narrativo:** \`[Parágrafos que explicam como esta seção se relaciona com os temas centrais, os grandes arcos e o desenvolvimento de personagens na saga.]\`
+  > **7. Conexão com o Núcleo Narrativo:** \`[Múltiplos parágrafos substantivos que explicam em profundidade como esta seção se relaciona com os temas centrais, os grandes arcos, o desenvolvimento de personagens e a filosofia da saga. Seja rico, detalhado e analítico.]\`
   > 
-  > - **Conteúdo Esperado:** Uma análise de como a seção proposta:
-  >     - Impacta o **Arco Central** (ex: ambições, desafios, continuidade).
-  >     - Desenvolve a **Relação Principal** (ex: parceria, conflitos, moralidade).
-  >     - Altera ou fortalece o **Contexto Maior** (ex: poder, políticas, imagem).
+  > - **Conteúdo Esperado:** Uma análise profunda e rica de como a seção proposta se conecta ao núcleo narrativo, explorando:
+  >     - Como **impacta o Arco Central** (ex: ambições, desafios, continuidade, transformações, dilemas filosóficos) — explore em múltiplas dimensões.
+  >     - Como **desenvolve a Relação Principal** (ex: parceria, conflitos, moralidade, evolução emocional, dinâmicas de poder, vulnerabilidades) — seja específico sobre as nuances.
+  >     - Como **altera ou fortalece o Contexto Maior** (ex: poder, políticas, imagem pública, transformação social, impacto histórico) — analise as implicações de longo prazo.
+  >     - Como se relaciona com os **Temas Fundamentais** estabelecidos (sacrifício, moralidade vs pragmatismo, isolamento e conexão, peso da história).
   > - **Exemplo:**
-  >     - **O Arco Central:** \`O projeto secreto representa o próximo passo na garantia da continuidade do arco, não apenas através de sucessão, mas da extensão de capacidades, alterando fundamentalmente o conceito de legado.\`
-  >     - **A Relação Principal:** \`A motivação compartilhada pela inovação cimenta ainda mais a parceria, mas também pode revelar fissuras ou desafios éticos internos.\`
-  >     - **O Contexto Maior:** \`O contexto transcende a dominação convencional para buscar controle sobre elementos fundamentais, estabelecendo um novo tipo de hegemonia.\`
-  > - **Propósito:** Garantir que cada seção contribua de forma significativa para a narrativa geral, reforçando os temas e o desenvolvimento dos personagens.
+  >     - **O Arco Central:** \`O projeto secreto representa o próximo passo crucial na garantia da continuidade do arco narrativo, não apenas através de sucessão tradicional, mas da extensão radical de capacidades e influência, alterando fundamentalmente o conceito de legado e poder. Esta seção explora como a ambição transformadora enfrenta barreiras práticas e éticas, revelando as tensões entre o idealismo visionário e a realpolitik necessária para sua implementação. A descoberta e mobilização em torno do projeto servem como catalisador para questionamentos profundos sobre até onde os protagonistas estão dispostos a ir em nome de seus objetivos.\`
+  >     - **A Relação Principal:** \`A motivação compartilhada pela inovação e pelo controle de elementos fundamentais cimenta ainda mais a parceria estratégica e emocional entre os protagonistas, mas também pode revelar fissuras sutis ou desafios éticos internos que testam a confiança mútua. A seção deve explorar como a descoberta intensifica tanto a colaboração quanto as tensões latentes, revelando vulnerabilidades e fortalecendo laços através da adversidade compartilhada.\`
+  >     - **O Contexto Maior:** \`O contexto narrativo transcende a dominação política ou militar convencional para buscar controle sobre elementos fundamentais da realidade ou da sociedade, estabelecendo um novo tipo de hegemonia que é ao mesmo tempo mais sutil e mais absoluta. Esta seção posiciona os protagonistas como agentes de uma transformação que terá repercussões históricas, elevando suas ações do nível tático para o estratégico e do pessoal para o mítico.\`
+  > - **Propósito:** Garantir que cada seção contribua de forma significativa, profunda e multidimensional para a narrativa geral, reforçando os temas, desenvolvendo os personagens de forma orgânica, e mantendo a coesão filosófica e temática da obra. **Este campo rico ajuda a garantir que a seção final seja substancial e atinja o mínimo de 7.000 caracteres.**
   > 
   > ---
   > 
