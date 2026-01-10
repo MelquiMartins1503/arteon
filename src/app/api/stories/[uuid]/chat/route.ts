@@ -8,10 +8,7 @@ import {
 } from "@/features/story/prompts/chat";
 import { apiErrorHandler } from "@/lib/apiErrorHandlers";
 import { env } from "@/lib/env";
-import {
-  HttpExceptionClient,
-  HttpExceptionServer,
-} from "@/lib/exceptions/HttpExceptions";
+import { HttpExceptionClient } from "@/lib/exceptions/HttpExceptions";
 import { getAuthenticatedUser } from "@/lib/getAuthenticatedUser";
 import logger from "@/lib/logger";
 import prismaClient from "@/lib/prismaClient";
@@ -19,9 +16,12 @@ import { chatRequestSchema } from "@/lib/schemas/chatRequest";
 import {
   CommandDetector,
   HistoryOptimizer,
+  SelectiveHistoryLoader,
   SuggestionGenerator,
 } from "@/services/chat";
+import { handlePauseModeCommands } from "@/services/chat/PauseModeHandler";
 import { GeminiClient } from "@/services/gemini/GeminiClient";
+import type { GeminiMessage } from "@/types/chat";
 
 export async function POST(
   request: NextRequest,
@@ -72,6 +72,7 @@ export async function POST(
         select: {
           id: true,
           customPrompt: true,
+          pauseNarrativeMode: true, // CARREGAR ESTADO DO MODO PAUSA
           messages: {
             where: { isMeta: false },
             orderBy: { id: "asc" },
@@ -87,9 +88,66 @@ export async function POST(
     }
 
     // ========================================================================
-    // INTERCEPTAÇÃO DE COMANDO: FINALIZAR IDEALIZAÇÃO
+    // DETECÇÃO DE COMANDOS E INFERÊNCIA DE TIPOS
+    // ========================================================================
     // ========================================================================
     const commandDetector = new CommandDetector();
+    const rawCommand = commandDetector.detectNarrativeCommand(prompt);
+    const isInPauseMode = conversationHistoryWithMessages.pauseNarrativeMode;
+
+    // ========================================================================
+    // DETERMINAR COMANDO EFETIVO BASEADO NO ESTADO
+    // ========================================================================
+    let effectiveCommand = rawCommand;
+
+    if (isInPauseMode && rawCommand !== "RETOMAR_NARRATIVA") {
+      // Durante modo pausa, SEMPRE usar config de pausa
+      effectiveCommand = "PAUSAR_NARRATIVA";
+      logger.info(
+        { rawCommand, isInPauseMode },
+        "Em modo PAUSAR NARRATIVA - forçando configuração de pausa",
+      );
+    } else if (!isInPauseMode && rawCommand === "GENERAL") {
+      // Fora do modo pausa, mensagens sem comando também usam pausa
+      effectiveCommand = "PAUSAR_NARRATIVA";
+      logger.info("Mensagem sem comando - usando configuração de pausa");
+    }
+
+    // Converter para tipo seguro (nunca GENERAL)
+    const detectedCommand: Exclude<typeof effectiveCommand, "GENERAL"> =
+      effectiveCommand === "GENERAL" ? "PAUSAR_NARRATIVA" : effectiveCommand;
+
+    const userMessageType =
+      commandDetector.inferUserMessageType(detectedCommand);
+    const responseMessageType =
+      commandDetector.inferResponseMessageType(detectedCommand);
+
+    logger.info(
+      {
+        detectedCommand,
+        userMessageType,
+        responseMessageType,
+      },
+      "Comando narrativo detectado",
+    );
+
+    // ========================================================================
+    // INTERCEPTAÇÃO: ATIVAR/DESATIVAR MODO PAUSA
+    // ========================================================================
+    const pauseModeResponse = await handlePauseModeCommands(
+      rawCommand,
+      isInPauseMode,
+      conversationHistoryWithMessages.id,
+      prismaClient,
+    );
+
+    if (pauseModeResponse) {
+      return pauseModeResponse;
+    }
+
+    // ========================================================================
+    // INTERCEPTAÇÃO DE COMANDO: FINALIZAR IDEALIZAÇÃO
+    // ========================================================================
 
     if (commandDetector.isFinalizeIdealizationCommand(prompt)) {
       // Salvar mensagem do usuário
@@ -100,6 +158,7 @@ export async function POST(
           conversationHistoryId: conversationHistoryWithMessages.id,
           important: false,
           isMeta: true,
+          messageType: "SYSTEM",
         },
       });
 
@@ -111,6 +170,7 @@ export async function POST(
           conversationHistoryId: conversationHistoryWithMessages.id,
           important: false,
           isMeta: true,
+          messageType: "SYSTEM",
         },
       });
 
@@ -145,13 +205,28 @@ export async function POST(
     const historyOptimizer = new HistoryOptimizer(genAI, prismaClient);
     const suggestionGenerator = new SuggestionGenerator(genAI);
     const geminiClient = new GeminiClient(genAI);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const selectiveLoader = new SelectiveHistoryLoader(prismaClient as any);
 
     // ========================================================================
-    // CONSTRUIR HISTÓRICO OTIMIZADO
+    // CONSTRUIR HISTÓRICO (SELETIVO OU OTIMIZADO)
     // ========================================================================
-    const history = await historyOptimizer.buildOptimizedHistory(
-      conversationHistoryWithMessages.messages,
+    let history: GeminiMessage[];
+
+    // Usar carregamento seletivo sempre (GENERAL foi convertido para PAUSAR_NARRATIVA)
+    logger.info(
+      { detectedCommand },
+      "Usando carregamento seletivo de histórico",
     );
+    const { messages, stats } = await selectiveLoader.loadSelectiveHistory(
+      detectedCommand,
+      conversationHistoryWithMessages.id,
+    );
+
+    // Converter mensagens para formato Gemini
+    history = await historyOptimizer.buildOptimizedHistory(messages);
+
+    logger.info({ stats }, "Histórico seletivo carregado e otimizado");
 
     // Injetar prompt inicial do sistema
     const initialSystemPrompt = buildInitialChatSystemPrompt(
@@ -193,6 +268,16 @@ export async function POST(
       );
     }
 
+    // Determinar se comando do usuário deve ser meta (não aparecer no histórico)
+    const isUserCommandMeta = commandDetector.shouldMarkAsMeta(detectedCommand);
+
+    if (isUserCommandMeta) {
+      logger.info(
+        { command: detectedCommand },
+        "Comando narrativo detectado - marcando mensagem do usuário como meta",
+      );
+    }
+
     // ========================================================================
     // SALVAR MENSAGENS
     // ========================================================================
@@ -203,8 +288,9 @@ export async function POST(
         role: "USER",
         conversationHistoryId: conversationHistoryWithMessages.id,
         important: isImportantMessage,
-        isMeta: isMeta,
+        isMeta: isUserCommandMeta, // ✅ Automático baseado no comando
         generateSuggestions: generateSuggestions,
+        messageType: userMessageType,
       },
     });
 
@@ -217,6 +303,7 @@ export async function POST(
           conversationHistoryId: conversationHistoryWithMessages.id,
           important: false,
           isMeta: false,
+          messageType: "SYSTEM",
         },
       });
 
@@ -239,6 +326,7 @@ export async function POST(
         conversationHistoryId: conversationHistoryWithMessages.id,
         important: isImportantMessage,
         isMeta: isMeta,
+        messageType: responseMessageType,
       },
     });
 

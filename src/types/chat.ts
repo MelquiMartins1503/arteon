@@ -8,6 +8,17 @@
 export type ChatRole = "USER" | "MODEL";
 
 /**
+ * Tipo de mensagem no sistema de narrativa
+ */
+export type MessageType =
+  | "GENERAL" // Mensagem geral/conversa normal
+  | "SECTION_PROPOSAL" // Proposta de seção (Briefing de Seção Detalhado)
+  | "SECTION_CONTENT" // Conteúdo da seção gerada
+  | "DECA" // Documento de Estado Canônico Atual
+  | "REVISION_REQUEST" // Solicitação de revisão
+  | "SYSTEM"; // Mensagens do sistema
+
+/**
  * Formato de papel usado pelo Gemini API
  */
 export type GeminiRole = "user" | "model";
@@ -19,6 +30,7 @@ export interface ChatMessage {
   id: number;
   content: string;
   role: ChatRole;
+  messageType?: MessageType; // Opcional para retrocompatibilidade
   important: boolean;
   isMeta: boolean;
   summary: string | null;
@@ -49,6 +61,7 @@ export interface ChatMessageInput {
   important?: boolean;
   isMeta?: boolean;
   generateSuggestions?: boolean;
+  messageType?: MessageType; // NOVO CAMPO
 }
 
 /**

@@ -1,0 +1,10 @@
+enum MessageType {
+    GENERAL           // Mensagem geral/conversa normal
+    SECTION_PROPOSAL  // Proposta de seção (Briefing de Seção Detalhado)
+    SECTION_CONTENT   // Conteúdo da seção gerada
+    DECA              // Documento de Estado Canônico Atual
+    REVISION_REQUEST  // Solicitação de revisão
+    SYSTEM            // Mensagens do sistema
+
+    @@schema("public")
+}

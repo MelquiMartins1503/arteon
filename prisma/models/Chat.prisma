@@ -3,6 +3,7 @@ model ConversationHistory {
     uuid String @unique @default(uuid()) @db.Uuid
 
     customPrompt String?
+    pauseNarrativeMode Boolean @default(false)
 
     messages Message[]
 
@@ -30,6 +31,7 @@ model Message {
 
     role MessageRole @default(USER)
     content String
+    messageType MessageType @default(GENERAL)
 
     summary String?
     audioUrl String?
@@ -45,10 +47,9 @@ model Message {
     updatedAt DateTime @updatedAt @map("updated_at")
 
     @@index([conversationHistoryId])
-
     @@index([createdAt])
     @@index([important])
-
+    @@index([messageType])
 
     @@map("messages")
     @@schema("public")
