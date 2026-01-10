@@ -7,6 +7,8 @@ import type { MessageType } from "@/types/chat";
 export type NarrativeCommand =
   | "GERAR_DECA"
   | "SUGERIR_PROXIMA_SECAO"
+  | "SUGERIR_ESTRUTURA_DE_SECOES"
+  | "APROVAR_E_SELAR_ESBOÇO_DE_ESTRUTURA"
   | "APROVAR_E_SELAR_ESBOÇO"
   | "REVISAR_E_CORRIGIR"
   | "PAUSAR_NARRATIVA"
@@ -23,6 +25,9 @@ export class CommandDetector {
   private readonly COMMAND_PATTERNS = {
     GERAR_DECA: /\[GERAR\s+DECA\]/i,
     SUGERIR_PROXIMA_SECAO: /\[SUGERIR\s+PR[OÓ]XIMA\s+SE[ÇC][AÃ]O\]/i,
+    SUGERIR_ESTRUTURA_DE_SECOES: /\[SUGERIR\s+ESTRUTURA\s+DE\s+SE[ÇC][ÕO]ES\]/i,
+    APROVAR_E_SELAR_ESBOÇO_DE_ESTRUTURA:
+      /\[APROVAR\s+E\s+SELAR\s+ESBO[ÇC]O\s+DE\s+ESTRUTURA\]/i,
     APROVAR_E_SELAR_ESBOÇO: /\[APROVAR\s+E\s+SELAR\s+ESBO[ÇC]O\]/i,
     REVISAR_E_CORRIGIR: /\[REVISAR\s+E\s+CORRIGIR\s+SE[ÇC][AÃ]O\]/i,
     PAUSAR_NARRATIVA: /\[PAUSAR\s+NARRATIVA/i,
@@ -66,6 +71,14 @@ export class CommandDetector {
     if (this.COMMAND_PATTERNS.SUGERIR_PROXIMA_SECAO.test(prompt)) {
       return "SUGERIR_PROXIMA_SECAO";
     }
+    if (this.COMMAND_PATTERNS.SUGERIR_ESTRUTURA_DE_SECOES.test(prompt)) {
+      return "SUGERIR_ESTRUTURA_DE_SECOES";
+    }
+    if (
+      this.COMMAND_PATTERNS.APROVAR_E_SELAR_ESBOÇO_DE_ESTRUTURA.test(prompt)
+    ) {
+      return "APROVAR_E_SELAR_ESBOÇO_DE_ESTRUTURA";
+    }
     if (this.COMMAND_PATTERNS.APROVAR_E_SELAR_ESBOÇO.test(prompt)) {
       return "APROVAR_E_SELAR_ESBOÇO";
     }
@@ -88,6 +101,8 @@ export class CommandDetector {
     const typeMap: Record<NarrativeCommand, MessageType> = {
       GERAR_DECA: "DECA",
       SUGERIR_PROXIMA_SECAO: "SECTION_PROPOSAL",
+      SUGERIR_ESTRUTURA_DE_SECOES: "SECTION_STRUCTURE",
+      APROVAR_E_SELAR_ESBOÇO_DE_ESTRUTURA: "SECTION_PROPOSAL", // Gera primeira seção
       APROVAR_E_SELAR_ESBOÇO: "SECTION_CONTENT",
       REVISAR_E_CORRIGIR: "REVISION_REQUEST",
       PAUSAR_NARRATIVA: "GENERAL",
@@ -119,6 +134,8 @@ export class CommandDetector {
     const narrativeCommands: NarrativeCommand[] = [
       "GERAR_DECA",
       "SUGERIR_PROXIMA_SECAO",
+      "SUGERIR_ESTRUTURA_DE_SECOES",
+      "APROVAR_E_SELAR_ESBOÇO_DE_ESTRUTURA",
       "APROVAR_E_SELAR_ESBOÇO",
       "REVISAR_E_CORRIGIR",
       "PAUSAR_NARRATIVA",
@@ -138,6 +155,8 @@ export class CommandDetector {
     const isStructuralCommand = [
       "GERAR_DECA",
       "SUGERIR_PROXIMA_SECAO",
+      "SUGERIR_ESTRUTURA_DE_SECOES",
+      "APROVAR_E_SELAR_ESBOÇO_DE_ESTRUTURA",
       "APROVAR_E_SELAR_ESBOÇO",
     ].includes(command);
 

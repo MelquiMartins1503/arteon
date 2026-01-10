@@ -14,6 +14,7 @@ export type MessageType =
   | "GENERAL" // Mensagem geral/conversa normal
   | "SECTION_PROPOSAL" // Proposta de seção (Briefing de Seção Detalhado)
   | "SECTION_CONTENT" // Conteúdo da seção gerada
+  | "SECTION_STRUCTURE" // Estrutura de seções (esboço de 5-8 seções)
   | "DECA" // Documento de Estado Canônico Atual
   | "REVISION_REQUEST" // Solicitação de revisão
   | "SYSTEM"; // Mensagens do sistema

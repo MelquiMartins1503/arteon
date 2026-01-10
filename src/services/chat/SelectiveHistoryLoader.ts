@@ -52,7 +52,7 @@ export class SelectiveHistoryLoader {
     SUGERIR_PROXIMA_SECAO: {
       messageTypes: [
         { type: "DECA", limit: 1 }, // Último DECA
-        { type: "GENERAL", limit: 5 }, // Últimas 5 conversas
+        { type: "GENERAL", limit: 10 }, // Últimas 10 conversas
         { type: "SECTION_CONTENT", limit: 10 }, // Últimas 10 seções
         { type: "SECTION_PROPOSAL", limit: 1 }, // Última proposta
       ],
@@ -60,11 +60,30 @@ export class SelectiveHistoryLoader {
       importantDaysLimit: 30,
       maxImportantMessages: 5,
     },
+    SUGERIR_ESTRUTURA_DE_SECOES: {
+      messageTypes: [
+        { type: "DECA", limit: 1 }, // Último DECA
+        { type: "GENERAL", limit: 10 }, // Últimas 10 conversas
+        { type: "SECTION_CONTENT", limit: 10 }, // Últimas 10 seções
+        { type: "SECTION_PROPOSAL", limit: 3 }, // Últimas 3 propostas
+      ],
+      includeImportant: true,
+      maxImportantMessages: 10,
+    },
+    APROVAR_E_SELAR_ESBOÇO_DE_ESTRUTURA: {
+      messageTypes: [
+        { type: "SECTION_STRUCTURE", limit: 1 }, // Última estrutura proposta
+        { type: "DECA", limit: 1 }, // Último DECA
+        { type: "SECTION_CONTENT", limit: 5 }, // Últimas 5 seções
+      ],
+      includeImportant: true,
+      maxImportantMessages: 5,
+    },
     APROVAR_E_SELAR_ESBOÇO: {
       messageTypes: [
         { type: "SECTION_PROPOSAL", limit: 1 }, // Última proposta
         { type: "SECTION_CONTENT", limit: 3 }, // Últimas 3 seções
-        { type: "GENERAL", limit: 5 }, // Últimas 5 conversas
+        { type: "GENERAL", limit: 15 }, // Últimas 15 conversas
         { type: "DECA", limit: 1 }, // Último DECA
       ],
     },

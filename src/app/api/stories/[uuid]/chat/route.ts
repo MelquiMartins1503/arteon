@@ -96,35 +96,47 @@ export async function POST(
     const isInPauseMode = conversationHistoryWithMessages.pauseNarrativeMode;
 
     // ========================================================================
-    // DETERMINAR COMANDO EFETIVO BASEADO NO ESTADO
+    // SEPARAR: Comando para HISTÓRICO vs Comando para TIPOS DE MENSAGEM
     // ========================================================================
-    let effectiveCommand = rawCommand;
+    // O comando para carregamento de histórico pode ser sobrescrito pelo modo pausa,
+    // MAS o comando para classificação de mensagens deve SEMPRE ser o real
+    let historyLoadingCommand = rawCommand;
+    const messageClassificationCommand = rawCommand;
 
     if (isInPauseMode && rawCommand !== "RETOMAR_NARRATIVA") {
-      // Durante modo pausa, SEMPRE usar config de pausa
-      effectiveCommand = "PAUSAR_NARRATIVA";
+      // Durante modo pausa, SEMPRE usar config de pausa para HISTÓRICO
+      historyLoadingCommand = "PAUSAR_NARRATIVA";
       logger.info(
         { rawCommand, isInPauseMode },
-        "Em modo PAUSAR NARRATIVA - forçando configuração de pausa",
+        "Em modo PAUSAR NARRATIVA - forçando configuração de pausa para histórico",
       );
     } else if (!isInPauseMode && rawCommand === "GENERAL") {
-      // Fora do modo pausa, mensagens sem comando também usam pausa
-      effectiveCommand = "PAUSAR_NARRATIVA";
-      logger.info("Mensagem sem comando - usando configuração de pausa");
+      // Fora do modo pausa, mensagens sem comando também usam pausa para HISTÓRICO
+      historyLoadingCommand = "PAUSAR_NARRATIVA";
+      logger.info(
+        "Mensagem sem comando - usando configuração de pausa para histórico",
+      );
     }
 
-    // Converter para tipo seguro (nunca GENERAL)
-    const detectedCommand: Exclude<typeof effectiveCommand, "GENERAL"> =
-      effectiveCommand === "GENERAL" ? "PAUSAR_NARRATIVA" : effectiveCommand;
+    // Converter para tipo seguro (nunca GENERAL) - apenas para histórico
+    const detectedCommand: Exclude<typeof historyLoadingCommand, "GENERAL"> =
+      historyLoadingCommand === "GENERAL"
+        ? "PAUSAR_NARRATIVA"
+        : historyLoadingCommand;
 
-    const userMessageType =
-      commandDetector.inferUserMessageType(detectedCommand);
-    const responseMessageType =
-      commandDetector.inferResponseMessageType(detectedCommand);
+    // ✅ USAR COMANDO REAL para inferir tipos de mensagem
+    const userMessageType = commandDetector.inferUserMessageType(
+      messageClassificationCommand,
+    );
+    const responseMessageType = commandDetector.inferResponseMessageType(
+      messageClassificationCommand,
+    );
 
     logger.info(
       {
-        detectedCommand,
+        rawCommand,
+        historyLoadingCommand: detectedCommand,
+        messageClassificationCommand,
         userMessageType,
         responseMessageType,
       },
@@ -269,11 +281,13 @@ export async function POST(
     }
 
     // Determinar se comando do usuário deve ser meta (não aparecer no histórico)
-    const isUserCommandMeta = commandDetector.shouldMarkAsMeta(detectedCommand);
+    const isUserCommandMeta = commandDetector.shouldMarkAsMeta(
+      messageClassificationCommand,
+    );
 
     if (isUserCommandMeta) {
       logger.info(
-        { command: detectedCommand },
+        { command: messageClassificationCommand },
         "Comando narrativo detectado - marcando mensagem do usuário como meta",
       );
     }

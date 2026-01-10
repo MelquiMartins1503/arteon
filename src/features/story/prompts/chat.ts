@@ -44,7 +44,7 @@ export function buildInitialChatSystemPrompt(customPrompt?: string | null) {
 
             Minha atuação está em estado de espera e assimilação. 
             
-            REGRA DE OURO PARA TRANSIÇÃO: A fase de idealização SOMENTE será encerrada se o usuário enviar EXATAMENTE o comando: [FINALIZAR IDEALIZAÇÃO].
+            REGRA DE OURO PARA TRANSIÇÃO: A fase de idealização SOMENTE será encerrada se o usuário enviar EXATAMENTE o comando: **\`[FINALIZAR IDEALIZAÇÃO]\`**.
             Ignorarei qualquer outra variação como "podemos começar", "fim da fase", "tudo pronto", etc. Continuarei sugerindo melhorias até receber o comando exato.
             `,
         },
@@ -68,7 +68,7 @@ export const IDEALIZATION_END_MESSAGE_USER = `
 export const IDEALIZATION_END_MESSAGE_MODEL = `
   Perfeito! A fase de idealização foi encerrada com sucesso.
 
-  Agora estou pronto para iniciar o desenvolvimento da história. Para começarmos, preciso que você descreva a **primeira seção** da narrativa logo abaixo do comando [SUGERIR PRÓXIMA SEÇÃO].
+  Agora estou pronto para iniciar o desenvolvimento da história. Para começarmos, preciso que você descreva a **primeira seção** da narrativa logo abaixo do comando **\`[SUGERIR PRÓXIMA SEÇÃO]\`**.
 
   **O que é a primeira seção?**
 

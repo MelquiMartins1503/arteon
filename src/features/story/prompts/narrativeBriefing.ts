@@ -640,6 +640,7 @@ export const NARRATIVE_BRIEFING = `
   > **Próximo passo recomendado:**
   > 
   > - **\`[SUGERIR PRÓXIMA SEÇÃO]\`** → Planejar apenas o próximo passo imediato.
+  > - **\`[SUGERIR ESTRUTURA DE SEÇÕES]\`** → Criar roteiro de 5-8 seções (disponível apenas se não houver estrutura criada).
   > 
   > Aguardando seu comando.
   > 
@@ -685,9 +686,118 @@ export const NARRATIVE_BRIEFING = `
   **Objetivo:** Planejar a próxima cena.
   **Comando de Ativação:** **\`[SUGERIR PRÓXIMA SEÇÃO]\`** (pode vir acompanhado do número da opção escolhida e ajustes pessoais).
 
-  ### **FASE 2.5: ESBOÇO ESTRATÉGICO**
+  ### **FASE 2.5: ESBOÇO ESTRATÉGICO DE ESTRUTURA DE SEÇÕES (Opcional)**
 
-  **Diretriz de Aprofundamento:** A IA deve monitorar o estado emocional dos personagens. Se necessário, sugerir pausas táticas focadas em desenvolvimento humano, priorizando a evolução dos personagens tanto quanto a trama.
+  **Objetivo:** Criar um roteiro sequencial de seções antes de desenvolvê-las, oferecendo visão panorâmica da narrativa.
+  **Quando Usar:** Antes de iniciar o desenvolvimento detalhado de seções, quando deseja planejar a progressão narrativa.
+  **Comando de Ativação:** **\`[SUGERIR ESTRUTURA DE SEÇÕES]\`**
+
+  **Descrição:** Esta fase opcional permite que o Autor solicite uma estrutura sequencial de 5 a 8 seções que mapeiam os principais momentos narrativos. Cada seção na estrutura contém título, enredo resumido e tempo/local, servindo como guia para o desenvolvimento posterior.
+
+  **Regras de Disponibilidade:**
+  - Este comando **só está disponível quando NÃO há estrutura de seções criada** para a história atual
+  - Após usar este comando uma vez, ele não aparecerá mais nas opções até que a estrutura seja completada ou descartada
+  - O comando aparecerá após mensagens DECA quando não houver estrutura ativa
+
+  ### **Guia de Formato da Estrutura de Seções**
+
+  > ***Modelo***
+> 
+> 
+> ### **Briefing de Seções Futuras**
+> 
+> **1. Título do Plano:** \`[Um título criativo e descritivo para o plano geral de seções futuras. Deve capturar a essência do arco narrativo que essas seções cobrirão.]\`
+> 
+> - **Conteúdo Esperado:** Um título conciso e impactante (ex: "O Desdobramento das Sombras", "Caminho para o Conflito Final").
+> - **Propósito:** Fornecer uma identidade temática unificadora para o conjunto de seções propostas, ajudando a visualizar o fluxo narrativo maior.
+> 
+> **2. Capítulo Envolvido:** \`[O número e título do capítulo aos quais essas seções pertencerão.]\`
+> 
+> - **Conteúdo Esperado:** O nome completo do capítulo. Se for um novo capítulo, indicar isso.
+> - **Exemplo:** \`Capítulo 5 – A Busca pela Verdade\`
+> - **Propósito:** Manter a organização estrutural da história em capítulos.
+> 
+> **3. Foco Narrativo do Arco:** \`[Um parágrafo conciso descrevendo o objetivo central do conjunto de seções. O que elas pretendem explorar ou alcançar em termos de enredo e temas?]\`
+> 
+> - **Conteúdo Esperado:** Uma frase principal resumindo a "missão" coletiva das seções.
+> - **Exemplo:** Explorar a escalada de investigações e conflitos em torno de um projeto secreto, aprofundando motivações de personagens e preparando o terreno para revelações maiores na saga.
+> - **Propósito:** Estabelecer a intenção unificada do plano, guiando a coerência narrativa.
+> 
+> **4. Personagens em Foco Geral:** \`[Lista dos personagens principais e secundários que aparecerão ao longo das seções propostas.]\`
+> 
+> - **Conteúdo Esperado:**
+>     - **Principais:** \`[Descrições genéricas dos personagens centrais que impulsionam o arco geral.]\`
+>     - **Secundários:** \`[Descrições genéricas de personagens de apoio que surgem em múltiplas seções.]\`
+> - **Exemplo:**
+>     - **Principais :**Líder Principal, Colaborador Chave, Antagonista Emergente.
+>     - **Secundários:** Especialistas em Inteligência, Aliados Ocasionales.
+> - **Propósito:** Definir o elenco recorrente, destacando quem impulsiona o desenvolvimento ao longo das seções.
+> 
+> **5. Lista de Seções Propostas:** \`[Uma lista numerada de seções futuras, cada uma com título, enredo resumido e tempo/local. Divida em 3 a 10 seções, dependendo da extensão do arco.]\`
+> 
+> - **Conteúdo Esperado:** Para cada seção na lista:
+>     - **Seção [Número]: [Título Descritivo]**
+>     - **Enredo:** \`[2-4 frases resumindo os eventos chave, interações principais e progressão da trama nesta seção específica.]\`
+>     - **Tempo e Local:** \`[Uma frase concisa em itálico descrevendo o período temporal (ou data genérica) e os cenários principais.]\`
+> - **Propósito:** Fornecer um esboço claro e sequencial das seções futuras, garantindo progressão lógica da narrativa com foco em elementos essenciais como título, enredo e contexto espaço-temporal.
+> 
+> **6. Conexão com o Núcleo Narrativo:** \`[Parágrafos explicando como essas seções se relacionam com os temas centrais, arcos e desenvolvimento de personagens na saga.]\`
+> 
+> - **Conteúdo Esperado:** Uma análise de como o plano:
+>     - Impacta o **Arco Central** (ex: ambições, desafios).
+>     - Desenvolve **Relações Principais** (ex: parcerias, conflitos).
+>     - Altera o **Contexto Maior** (ex: poder, políticas).
+> - **Exemplo:**
+>     - **O Arco Central:** Essas seções avançam o legado através de inovações secretas, desafiando noções de continuidade.
+>     - **Relações Principais:** Reforçam alianças, mas introduzem dilemas éticos que testam lealdades.
+>     - **O Contexto Maior:** Expandem o escopo para hegemonia tecnológica, redefinindo dinâmicas de poder.
+> - **Propósito:** Assegurar que as seções contribuam significativamente para a narrativa geral, reforçando temas e evoluções.
+> 
+> ---
+> 
+> Aguardando o comando **\`[APROVAR E SELAR ESBOÇO DE ESTRUTURA]\`** para prosseguirmos.
+>
+
+  **Diretrizes para Criação da Estrutura:**
+
+  1. **Quantidade e Progressão:**
+     - Propor entre 5 a 8 seções que formem um arco narrativo completo
+     - Seguir sequência cronológica e lógica de eventos
+     - Cada seção deve ter conexão clara com a anterior e preparar a próxima
+
+  2. **Conteúdo de Cada Seção:**
+     - **Título:** Evocativo e que capture a essênc ia da seção
+     - **Enredo:** 2-3 frases resumindo o que acontece, sem entrar em detalhes narrativos completos
+     - **Tempo e Local:** Específico e preciso (ex: "Terça-feira, 15 de Outubro de 2025, 14h00 — Sede de Inteligência")
+
+  3. **Equilíbrio Narrativo:**
+     - Alternar entre momentos de ação intensa e desenvolvimento de personagem
+     - Incluir progressão de trama E evolução emocional
+     - Balancear confrontos externos com conflitos internos
+
+  4. **Conexão com o Contexto:**
+     - Considerar o último DECA gerado (estado atual da narrativa)
+     - Manter continuidade com seções já desenvolvidas
+     - Respeitar os temas e conflitos estabelecidos no briefing narrativo
+     - Criar ritmo que sustente o interesse e antecipação
+
+  **Importante:**
+  - A estrutura é uma **visão geral**, não o desenvolvimento completo das seções
+  - As descrições devem ser **concisas** para servir como guia, não como narrativa final
+  - Ao desenvolver cada seção posteriormente, ela será muito mais rica e detalhada que o esboço
+  - A estrutura pode ser **ajustada** durante o desenvolvimento se a narrativa exigir
+
+  **Flexibilidade da Estrutura:**
+  - Você pode **criar seções entre** as já definidas (ex: inserir Seção 2.5 entre Seção 2 e 3)
+  - Você pode **alterar seções existentes** conforme a narrativa evolui
+  - Você pode **adicionar ideias e detalhes** a seções já planejadas
+  - A estrutura é um **guia flexível**, não um contrato rígido
+
+  **Após Aprovação:**
+  - Ao usar **\`[APROVAR E SELAR ESBOÇO DE ESTRUTURA]\`**, o sistema automaticamente **gerará a proposta da primeira seção** da estrutura
+  - Você pode então aprovar, revisar ou ajustar antes de desenvolver o conteúdo completo
+  - O desenvolvimento segue o fluxo normal: PROPOSTA → APROVAÇÃO → CONTEÚDO
+
 
 
 
