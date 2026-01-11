@@ -21,6 +21,11 @@ import {
 } from "@/services/chat";
 import { handlePauseModeCommands } from "@/services/chat/PauseModeHandler";
 import { GeminiClient } from "@/services/gemini/GeminiClient";
+import {
+  EntityManager,
+  KnowledgeBaseFormatter,
+  KnowledgeExtractor,
+} from "@/services/knowledge";
 import type { GeminiMessage } from "@/types/chat";
 
 export async function POST(
@@ -240,7 +245,27 @@ export async function POST(
 
     logger.info({ stats }, "Histórico seletivo carregado e otimizado");
 
-    // Injetar prompt inicial do sistema
+    // ========================================================================
+    // INJETAR KNOWLEDGE BASE (SEMPRE)
+    // ========================================================================
+    const kbFormatter = new KnowledgeBaseFormatter();
+    const kbMessages = await kbFormatter.loadKnowledgeBaseAsMessages(
+      story.uuid,
+    );
+
+    if (kbMessages.length > 0) {
+      // Converter KB para formato Gemini e injetar NO INÍCIO
+      const kbHistory =
+        await historyOptimizer.buildOptimizedHistory(kbMessages);
+      history = [...kbHistory, ...history];
+
+      logger.info(
+        { kbEntitiesCount: kbMessages.length / 2 },
+        "Knowledge Base injetada no contexto",
+      );
+    }
+
+    // Injetar prompt inicial do sistema (após KB, antes do histórico)
     const initialSystemPrompt = buildInitialChatSystemPrompt(
       conversationHistoryWithMessages.customPrompt,
     );
@@ -343,6 +368,89 @@ export async function POST(
         messageType: responseMessageType,
       },
     });
+
+    // ========================================================================
+    // EXTRAÇÃO AUTOMÁTICA DE CONHECIMENTO
+    // ========================================================================
+    // Extrair de:
+    // 1. SECTION_CONTENT (conteúdo gerado pela IA)
+    // 2. SECTION_PROPOSAL (propostas podem ter informações)
+    // 3. PAUSAR_NARRATIVA (conversas podem introduzir informações)
+    // 4. Mensagens do USUÁRIO com comandos APROVAR ou SUGERIR (usuário passa contexto)
+    const shouldExtractFromResponse =
+      responseMessageType === "SECTION_CONTENT" ||
+      responseMessageType === "SECTION_PROPOSAL" ||
+      (responseMessageType === "GENERAL" && isInPauseMode);
+
+    const shouldExtractFromUserInput =
+      userMessageType === "SECTION_PROPOSAL" || // SUGERIR_PROXIMA_SECAO
+      userMessageType === "SECTION_CONTENT"; // APROVAR_E_SELAR_ESBOÇO
+
+    if (shouldExtractFromResponse || shouldExtractFromUserInput) {
+      try {
+        // Determinar de onde extrair
+        const contentToExtract = shouldExtractFromUserInput
+          ? prompt // Extrair do prompt do usuário
+          : responseText; // Extrair da resposta da IA
+
+        const sourceType = shouldExtractFromUserInput
+          ? "user input"
+          : "AI response";
+
+        logger.info(
+          {
+            storyId: story.uuid,
+            trigger: shouldExtractFromUserInput
+              ? `User Input (${userMessageType})`
+              : `AI Response (${responseMessageType})`,
+            contentPreview: `${contentToExtract.substring(0, 100)}...`,
+          },
+          "🚀 GATILHO DETECTADO: Iniciando extração de conhecimento...",
+        );
+
+        // Carregar entidades existentes para contexto
+        const existingEntities = await prismaClient.storyEntity.findMany({
+          where: { storyId: story.uuid },
+          select: { name: true, type: true },
+        });
+
+        // Extrair entidades do conteúdo
+        const extractor = new KnowledgeExtractor();
+        const extractedEntities = await extractor.extractFromContent(
+          contentToExtract,
+          existingEntities,
+        );
+
+        // Processar e salvar entidades
+        if (extractedEntities.length > 0) {
+          const manager = new EntityManager();
+          const result = await manager.processExtractedEntities(
+            story.uuid,
+            extractedEntities,
+          );
+
+          logger.info(
+            {
+              storyId: story.uuid,
+              source: sourceType,
+              ...result,
+            },
+            `✅ Extração concluída! Created: ${result.created}, Updated: ${result.updated}, Skipped: ${result.skipped}`,
+          );
+        } else {
+          logger.info(
+            { storyId: story.uuid, source: sourceType },
+            "🤷‍♂️ Extração finalizada, mas nenhuma entidade relevante foi retornada pela IA.",
+          );
+        }
+      } catch (error) {
+        // Falha silenciosa - não bloqueia o fluxo principal
+        logger.error(
+          { error, storyId: story.uuid },
+          "Erro ao extrair conhecimento (não crítico)",
+        );
+      }
+    }
 
     // ========================================================================
     // GERAR SUGESTÕES (SE SOLICITADO)

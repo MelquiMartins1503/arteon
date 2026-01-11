@@ -593,6 +593,7 @@ export const NARRATIVE_BRIEFING = `
   > **Próximo passo recomendado:**
   > 
   > - **\`[SUGERIR PRÓXIMA SEÇÃO]\`** + (Número da Opção)
+  > - **\`[SUGERIR ESTRUTURA DE SEÇÕES]\`** → Criar roteiro de 5-8 seções (disponível apenas se não houver estrutura criada).
   > - **\`[PAUSAR NARRATIVA (Análise Tática)]\`**
   > 
   > Aguardando seu comando.
@@ -972,10 +973,15 @@ export const NARRATIVE_BRIEFING = `
       - **Exemplo:** A descoberta do **Projeto Secreto** mudou tudo.
   - **b. Pensamentos Internos:** Reflexões e monólogos internos são formatados em *itálico* para revelar a psicologia dos personagens.
       - **Exemplo:** *Se eu falhar agora, tudo estará perdido.*
-  - **c. Diálogos:** Usar travessão (—), com narração subsequente em minúscula para fluidez.
-      - **Exemplo:**— A análise mostra um risco iminente — disse o colaborador, com urgência.
-          
-          *Ele sempre vê o que ninguém vê*, pensou o líder. — Explique os detalhes.
+  - **c. Diálogos (Regra de Quebra de Linha Obrigatória):** Todo diálogo **deve** iniciar em uma nova linha e ser seguido por uma linha em branco, separando-o claramente da prosa narrativa. É proibido manter falas e descrições no mesmo parágrafo para garantir máxima clareza visual.
+      - **Exemplo:**
+          A tensão na sala era palpável enquanto Klaus aguardava a resposta.
+
+          — O tempo está acabando — disse ele, sem desviar o olhar do relógio de pêndulo.
+
+          Anneliese finalmente ergueu a cabeça, revelando olheiras profundas.
+
+          — Então que o tempo seja nosso juiz — respondeu ela, com uma frieza que não combinava com seu rosto.
           
   - **d. Técnicas Narrativas Avançadas:**
       - **i. Transição por "Corte Seco":** Encerrar uma cena no final de um parágrafo e iniciar outra no próximo, criando contraste ou conexão temática sem marcador explícito.

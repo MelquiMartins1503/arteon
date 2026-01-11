@@ -11,6 +11,8 @@ model Story {
     userId Int
     user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+    storyEntities StoryEntity[]
+
     createdAt DateTime @default(now()) @map("created_at")
     updatedAt DateTime @updatedAt @map("updated_at")
 

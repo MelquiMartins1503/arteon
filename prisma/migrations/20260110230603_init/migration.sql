@@ -1,11 +1,27 @@
 -- CreateEnum
 CREATE TYPE "MessageRole" AS ENUM ('USER', 'MODEL');
 
+-- CreateEnum
+CREATE TYPE "MessageType" AS ENUM ('GENERAL', 'SECTION_PROPOSAL', 'SECTION_CONTENT', 'SECTION_STRUCTURE', 'DECA', 'REVISION_REQUEST', 'SYSTEM');
+
+-- CreateEnum
+CREATE TYPE "EntityType" AS ENUM ('CHARACTER', 'LOCATION', 'OBJECT', 'EVENT', 'CONCEPT', 'FACTION', 'DECISION', 'RELATIONSHIP', 'OTHER');
+
+-- CreateEnum
+CREATE TYPE "EntityStatus" AS ENUM ('ACTIVE', 'ARCHIVED', 'DEPRECATED');
+
+-- CreateEnum
+CREATE TYPE "EntitySource" AS ENUM ('AI', 'USER', 'SYSTEM');
+
+-- CreateEnum
+CREATE TYPE "ChangeType" AS ENUM ('CREATED', 'UPDATED', 'MERGED', 'SPLIT');
+
 -- CreateTable
 CREATE TABLE "conversation_history" (
     "id" SERIAL NOT NULL,
     "uuid" UUID NOT NULL,
     "customPrompt" TEXT,
+    "pauseNarrativeMode" BOOLEAN NOT NULL DEFAULT false,
     "storyId" INTEGER NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
@@ -19,6 +35,7 @@ CREATE TABLE "messages" (
     "uuid" UUID NOT NULL,
     "role" "MessageRole" NOT NULL DEFAULT 'USER',
     "content" TEXT NOT NULL,
+    "messageType" "MessageType" NOT NULL DEFAULT 'GENERAL',
     "summary" TEXT,
     "audioUrl" TEXT,
     "important" BOOLEAN NOT NULL DEFAULT false,
@@ -43,6 +60,40 @@ CREATE TABLE "stories" (
     "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "stories_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "story_entity" (
+    "id" SERIAL NOT NULL,
+    "storyId" UUID NOT NULL,
+    "type" "EntityType" NOT NULL,
+    "category" TEXT,
+    "name" TEXT NOT NULL,
+    "aliases" TEXT[],
+    "description" TEXT NOT NULL,
+    "attributes" JSONB NOT NULL DEFAULT '{}',
+    "importance" INTEGER NOT NULL DEFAULT 5,
+    "status" "EntityStatus" NOT NULL DEFAULT 'ACTIVE',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "createdBy" "EntitySource" NOT NULL DEFAULT 'AI',
+
+    CONSTRAINT "story_entity_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "entity_version" (
+    "id" SERIAL NOT NULL,
+    "entityId" INTEGER NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "attributes" JSONB NOT NULL DEFAULT '{}',
+    "changeType" "ChangeType" NOT NULL,
+    "changeNote" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdBy" "EntitySource" NOT NULL DEFAULT 'AI',
+
+    CONSTRAINT "entity_version_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -78,6 +129,9 @@ CREATE INDEX "messages_created_at_idx" ON "messages"("created_at");
 CREATE INDEX "messages_important_idx" ON "messages"("important");
 
 -- CreateIndex
+CREATE INDEX "messages_messageType_idx" ON "messages"("messageType");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "stories_uuid_key" ON "stories"("uuid");
 
 -- CreateIndex
@@ -88,6 +142,21 @@ CREATE INDEX "stories_updated_at_idx" ON "stories"("updated_at");
 
 -- CreateIndex
 CREATE INDEX "stories_order_idx" ON "stories"("order");
+
+-- CreateIndex
+CREATE INDEX "story_entity_storyId_type_idx" ON "story_entity"("storyId", "type");
+
+-- CreateIndex
+CREATE INDEX "story_entity_storyId_importance_idx" ON "story_entity"("storyId", "importance");
+
+-- CreateIndex
+CREATE INDEX "story_entity_storyId_status_idx" ON "story_entity"("storyId", "status");
+
+-- CreateIndex
+CREATE INDEX "story_entity_name_idx" ON "story_entity"("name");
+
+-- CreateIndex
+CREATE INDEX "entity_version_entityId_createdAt_idx" ON "entity_version"("entityId", "createdAt");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_uuid_key" ON "users"("uuid");
@@ -103,3 +172,9 @@ ALTER TABLE "messages" ADD CONSTRAINT "messages_conversationHistoryId_fkey" FORE
 
 -- AddForeignKey
 ALTER TABLE "stories" ADD CONSTRAINT "stories_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "story_entity" ADD CONSTRAINT "story_entity_storyId_fkey" FOREIGN KEY ("storyId") REFERENCES "stories"("uuid") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "entity_version" ADD CONSTRAINT "entity_version_entityId_fkey" FOREIGN KEY ("entityId") REFERENCES "story_entity"("id") ON DELETE CASCADE ON UPDATE CASCADE;
