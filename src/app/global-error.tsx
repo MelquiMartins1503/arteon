@@ -1,17 +1,6 @@
 "use client";
 
-import { Poppins } from "next/font/google";
 import { useEffect } from "react";
-import { Box } from "@/components/Box";
-import { cn } from "@/lib/cn";
-import "./globals.css";
-
-const poppins = Poppins({
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-  subsets: ["latin"],
-  variable: "--font-poppins",
-  display: "swap",
-});
 
 export default function GlobalError({
   error,
@@ -27,23 +16,43 @@ export default function GlobalError({
 
   return (
     <html lang="pt-BR">
-      <Box
-        as="body"
-        className={cn(
-          poppins.variable,
-          "w-full h-dvh overflow-hidden antialiased text-brand-900 bg-white flex flex-col items-center justify-center gap-4",
-        )}
+      <body
+        style={{
+          width: "100%",
+          height: "100vh",
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "1rem",
+          fontFamily: "system-ui, -apple-system, sans-serif",
+          backgroundColor: "#ffffff",
+          color: "#1a1a1a",
+        }}
       >
-        <h2 className="text-2xl font-bold">Algo deu errado!</h2>
-        <p className="text-gray-600">Ocorreu um erro crítico na aplicação.</p>
+        <h2 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
+          Algo deu errado!
+        </h2>
+        <p style={{ color: "#666666" }}>
+          Ocorreu um erro crítico na aplicação.
+        </p>
         <button
           type="button"
           onClick={() => reset()}
-          className="px-4 py-2 bg-brand-600 text-white rounded hover:bg-brand-700 transition-colors"
+          style={{
+            padding: "0.5rem 1rem",
+            backgroundColor: "#3b82f6",
+            color: "#ffffff",
+            border: "none",
+            borderRadius: "0.375rem",
+            cursor: "pointer",
+            fontSize: "1rem",
+          }}
         >
           Tentar novamente
         </button>
-      </Box>
+      </body>
     </html>
   );
 }
