@@ -1,0 +1,27 @@
+model Story {
+    id Int @id @default(autoincrement())
+    uuid String @unique @default(uuid()) @db.Uuid
+    order Int @default(0)
+
+    title String?
+    description String?
+
+    conversationHistory ConversationHistory?
+
+    userId Int
+    user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    storyEntities StoryEntity[]
+    entityRelationships EntityRelationship[]
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    @@index([userId])
+    @@index([updatedAt])
+    @@index([order])
+
+    
+    @@map("stories")
+    @@schema("public")
+}

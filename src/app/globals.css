@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-poppins: var(--font-poppins), sans-serif;
+
+  /* Brand Color Palette */
+  --color-brand-50: #fcfcfc;
+  --color-brand-100: #f7f7f7;
+  --color-brand-150: #f2f2f2;
+  --color-brand-200: #ededed;
+  --color-brand-300: #e8e8e8;
+  --color-brand-400: #d8d8d8;
+  --color-brand-500: #bcbcbc;
+  --color-brand-600: #777777;
+  --color-brand-700: #363636;
+  --color-brand-800: #323232;
+  --color-brand-850: #262626;
+  --color-brand-900: #242424;
+  --color-brand-925: #212121;
+  --color-brand-950: #1b1b1bff;
+}
+
+@layer utilities {
+  .surface-brand-100 {
+    @apply border rounded-3xl bg-brand-100 dark:bg-brand-925 border-brand-300 dark:border-brand-800;
+  }
+}
+
+@layer base {
+  html,
+  body {
+    @apply font-poppins text-brand-900 dark:text-white w-full h-full overflow-hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none;
+  }
+}

@@ -1,0 +1,71 @@
+/**
+ * Modelo para relacionamentos entre entidades da história
+ * Representa o grafo de conexões entre personagens, locais, eventos, etc.
+ */
+model EntityRelationship {
+  id        Int      @id @default(autoincrement())
+  
+  // Identificação
+  storyId   String   @map("story_id") @db.Uuid
+  
+  // Relacionamento (grafo direcionado)
+  fromEntityId Int    @map("from_entity_id")
+  toEntityId   Int    @map("to_entity_id")
+  
+  // Tipo de relacionamento
+  type         RelationshipType
+  
+  // Detalhes
+  description  String
+  strength     Int      @default(5) // 1-10, intensidade do relacionamento
+  
+  // Metadados
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  createdBy    EntitySource @default(AI) @map("created_by")
+  
+  // Rastreabilidade
+  messageId    Int?     @map("message_id")
+  
+  // Relações
+  story        Story       @relation(fields: [storyId], references: [uuid], onDelete: Cascade)
+  fromEntity   StoryEntity @relation("RelationshipsFrom", fields: [fromEntityId], references: [id], onDelete: Cascade)
+  toEntity     StoryEntity @relation("RelationshipsTo", fields: [toEntityId], references: [id], onDelete: Cascade)
+  message      Message?    @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  
+  @@unique([fromEntityId, toEntityId, type])
+  @@index([storyId, fromEntityId])
+  @@index([storyId, toEntityId])
+  @@index([type])
+  @@schema("public")
+  @@map("entity_relationships")
+}
+
+/**
+ * Tipos de relacionamentos possíveis
+ */
+enum RelationshipType {
+  // Relações pessoais
+  FAMILY          // Família (pai, filho, irmão)
+  FRIENDSHIP      // Amizade
+  ROMANCE         // Romance/amor
+  RIVALRY         // Rivalidade
+  MENTORSHIP      // Mentor/aprendiz
+  
+  // Relações organizacionais
+  HIERARCHY       // Superior/subordinado
+  ALLIANCE        // Aliança
+  ENEMY           // Inimizade declarada
+  
+  // Relações contextuais
+  OWNERSHIP       // Posse (CHARACTER-OBJECT)
+  RESIDENCE       // Moradia (CHARACTER-LOCATION)  
+  MEMBERSHIP      // Membro de (CHARACTER-FACTION)
+  PARTICIPATION   // Participou de (CHARACTER-EVENT)
+  
+  // Relações conceituais
+  BELIEF          // Acredita em (CHARACTER-CONCEPT)
+  AFFILIATION     // Afiliação com
+  
+  @@schema("public")
+}

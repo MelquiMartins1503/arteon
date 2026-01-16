@@ -1,0 +1,115 @@
+// Tipos de entidades rastreadas na história
+enum EntityType {
+  CHARACTER      // Personagens
+  LOCATION       // Locais, cidades, regiões
+  OBJECT         // Objetos importantes
+  EVENT          // Eventos históricos/significativos
+  CONCEPT        // Conceitos, leis, sistemas, magias
+  FACTION        // Organizações, grupos, ordens
+  DECISION       // Decisões importantes de personagens
+  RELATIONSHIP   // Relações entre entidades
+  OTHER          // Outras informações relevantes
+  
+  @@schema("public")
+}
+
+// Status da entidade
+enum EntityStatus {
+  ACTIVE         // Ativo e relevante na narrativa
+  ARCHIVED       // Não mais ativo mas mantido
+  DEPRECATED     // Substituído ou removido
+  
+  @@schema("public")
+}
+
+// Fonte de criação
+enum EntitySource {
+  AI             // Extraído automaticamente pela IA
+  USER           // Criado manualmente pelo usuário
+  SYSTEM         // Criado pelo sistema
+  
+  @@schema("public")
+}
+
+// Tipo de mudança em versionamento
+enum ChangeType {
+  CREATED        // Entidade criada
+  UPDATED        // Entidade atualizada
+  MERGED         // Duas entidades mescladas
+  SPLIT          // Entidade dividida
+  
+  @@schema("public")
+}
+
+// Entidade da base de conhecimento
+model StoryEntity {
+  id        Int      @id @default(autoincrement())
+  storyId   String   @db.Uuid @map("story_id")  // FK para Story (tipo UUID)
+  
+  // Classificação
+  type      EntityType
+  category  String?    // Sub-categoria opcional
+  
+  // Identificação
+  name      String
+  aliases   String[]   // Apelidos, variações do nome
+  
+  // Conteúdo
+  description  String  @db.Text
+  attributes   Json    @default("{}")
+  
+  // Prioridade e metadados
+  importance   Int      @default(5)  // 1-10, prioridade no contexto
+  status       EntityStatus @default(ACTIVE)
+  
+  // Embedding semântico para busca vetorial
+  contextVector Unsupported("vector")? @map("context_vector")  // Vetor de embeddings (Gemini text-embedding-004)
+  
+  // Rastreamento temporal
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  createdBy    EntitySource @default(AI) @map("created_by")
+  
+  // Relações
+  story        Story    @relation(fields: [storyId], references: [uuid], onDelete: Cascade)
+  messageId    Int? @map("message_id")
+  message      Message? @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  versions     EntityVersion[]
+  
+  // Relacionamentos (grafo)
+  relationshipsFrom EntityRelationship[] @relation("RelationshipsFrom")
+  relationshipsTo   EntityRelationship[] @relation("RelationshipsTo")
+  
+  @@index([storyId, type])
+  @@index([storyId, importance])
+  @@index([storyId, status])
+  @@index([name])
+  @@schema("public")
+  @@map("story_entity")
+}
+
+// Histórico de versões das entidades
+model EntityVersion {
+  id          Int      @id @default(autoincrement())
+  entityId    Int
+  
+  // Snapshot do estado
+  name        String
+  description String   @db.Text
+  attributes  Json     @default("{}")
+  
+  // Metadados da versão
+  changeType  ChangeType
+  changeNote  String?  @db.Text
+  createdAt   DateTime @default(now())
+  createdBy   EntitySource @default(AI)
+  
+  // Relação
+  entity      StoryEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  messageId   Int?
+  message     Message?    @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  
+  @@index([entityId, createdAt])
+  @@schema("public")
+  @@map("entity_version")
+}
