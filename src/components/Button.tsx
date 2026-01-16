@@ -61,7 +61,7 @@ export const buttonVariants = cva("p-4 transition-colors cursor-pointer", {
       false: "",
     },
     disabled: {
-      true: "opacity-50 cursor-not-allowed",
+      true: "opacity-50 cursor-normal",
       false: "cursor-pointer",
     },
   },

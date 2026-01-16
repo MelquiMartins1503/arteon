@@ -183,7 +183,7 @@ const ChatInputInner: React.FC<ChatInputProps> = ({
                       }}
                       disabled={isLoading}
                     />
-                    <ChatInputMenu />
+                    <ChatInputMenu disabled={isLoading} />
                     <ChatInputTags />
                   </Box>
 

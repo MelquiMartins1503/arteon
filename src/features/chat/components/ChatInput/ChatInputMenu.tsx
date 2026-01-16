@@ -10,7 +10,11 @@ import { Button } from "@/components/Button";
 import { Dropdown } from "@/components/Dropdown";
 import { useChatInputTags } from "./ChatInputTagsContext";
 
-export const ChatInputMenu = () => {
+interface ChatInputMenuProps {
+  disabled?: boolean;
+}
+
+export const ChatInputMenu = ({ disabled }: ChatInputMenuProps) => {
   const {
     important,
     isMeta,
@@ -29,6 +33,7 @@ export const ChatInputMenu = () => {
           size="md"
           width="md"
           className="z-50 p-0"
+          disabled={disabled}
         >
           <Settings2 size={20} strokeWidth={1.5} />
         </Button>

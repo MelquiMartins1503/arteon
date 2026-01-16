@@ -349,12 +349,15 @@ export async function POST(
     // ========================================================================
     // SALVAR MENSAGENS
     // ========================================================================
+    // Calculate summary BEFORE transaction to avoid timeout (AI call can be slow)
+    const userMessageSummary = await generateSummaryIfNeeded(prompt);
+
     // Salvar mensagem do usuário DENTRO de transação
     const savedUserMessage = await prismaClient.$transaction(async (tx) => {
       const userMessage = await tx.message.create({
         data: {
           content: prompt,
-          summary: await generateSummaryIfNeeded(prompt),
+          summary: userMessageSummary,
           role: "USER",
           conversationHistoryId: conversationHistoryWithMessages.id,
           important: isImportantMessage,

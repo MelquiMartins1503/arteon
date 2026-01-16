@@ -355,7 +355,7 @@ export class KnowledgeBaseFormatter {
         SELECT id, type, name, aliases, description, attributes, importance,
                (context_vector::vector <=> $2::vector) as distance
         FROM story_entity
-        WHERE "storyId" = $1::uuid
+        WHERE story_id = $1::uuid
           AND status = 'ACTIVE'
           AND context_vector IS NOT NULL
         ORDER BY context_vector::vector <=> $2::vector
