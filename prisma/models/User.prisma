@@ -9,6 +9,7 @@ model User {
   resetPasswordTokenVersion Int @default(0)
 
   stories Story[]
+  uploadtrackings UploadTracking[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

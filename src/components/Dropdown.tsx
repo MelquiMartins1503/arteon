@@ -33,10 +33,10 @@ const useDropdown = () => {
 };
 
 // --- Slot Component (Manual Implementation) ---
-const Slot = ({
-  children,
-  ...props
-}: { children: ReactNode } & Record<string, any>) => {
+// biome-ignore lint/suspicious/noExplicitAny: Slot needs to accept any props for merging
+type SlotProps = { children: ReactNode } & Record<string, any>;
+
+const Slot = ({ children, ...props }: SlotProps) => {
   if (React.isValidElement(children)) {
     // biome-ignore lint/suspicious/noExplicitAny: Need any for dynamic prop merging
     const childProps = (children.props as any) || {};
@@ -124,9 +124,9 @@ const DropdownTrigger = ({
   const { toggle } = useDropdown();
 
   const compProps = {
-    onClick: (e: React.MouseEvent<HTMLElement>) => {
+    onClick: (e: React.MouseEvent<HTMLDivElement>) => {
       toggle();
-      if (onClick) onClick(e as any);
+      if (onClick) onClick(e as unknown as React.MouseEvent<HTMLDivElement>);
     },
     className: cn("cursor-pointer focus:outline-none", className),
     ...props,
@@ -264,8 +264,8 @@ const DropdownItem = ({
   const { close } = useDropdown();
 
   const compProps = {
-    onClick: (e: React.MouseEvent<HTMLElement>) => {
-      if (onClick) onClick(e as any);
+    onClick: (e: React.MouseEvent<HTMLDivElement>) => {
+      if (onClick) onClick(e as unknown as React.MouseEvent<HTMLDivElement>);
       if (closeOnClick) {
         close(); // Only auto close if closeOnClick is true
       }
@@ -321,7 +321,7 @@ const DropdownSeparator = ({ className, ...props }: BoxProps) => {
   return (
     <Box
       className={cn(
-        "-mx-1 my-1 h-px bg-neutral-100 dark:bg-neutral-800",
+        "-mx-1 my-1 h-px bg-brand-200 dark:bg-brand-800",
         className,
       )}
       {...props}

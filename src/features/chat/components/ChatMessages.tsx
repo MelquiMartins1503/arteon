@@ -1,10 +1,8 @@
-import { ArrowDown } from "lucide-react";
 import { Box } from "@/components/Box";
-import { Button } from "@/components/Button";
 import { ChatMessageContent } from "@/features/chat/components/ChatMessage/ChatMessageContent";
 import { cn } from "@/lib/cn";
 import { useChatContext } from "../context/ChatContext";
-import { useChatScroll } from "../hooks/useChatScroll";
+import { useChatScrollContext } from "../context/ChatScrollContext";
 import { ChatLoading } from "./ChatLoading";
 import { ChatMessage } from "./ChatMessage";
 import { ChatAvatar } from "./ChatMessage/ChatAvatar";
@@ -20,18 +18,14 @@ export const ChatMessages = ({
   welcomeMessage,
 }: ChatMessagesProps) => {
   const { isLoading, avatarLabel, messageComponents } = useChatContext();
-
-  const { scrollRef, showScrollButton, handleScroll, scrollToBottom } =
-    useChatScroll({
-      messagesCount: messages.length,
-    });
+  const { scrollRef, handleScroll } = useChatScrollContext();
 
   return (
     <Box
       ref={scrollRef}
       onScroll={handleScroll}
       className={cn(
-        "overflow-hidden overflow-y-auto flex-1 px-6 mb-3 w-10/12 max-[768px]:w-full min-h-0 scroll-smooth",
+        "overflow-hidden overflow-y-auto flex-1 px-6 mb-3 w-10/12 min-h-0 max-md:w-full scroll-smooth scrollbar-custom",
       )}
     >
       <Box gap={6} flexDirection="col" className="w-full min-h-full">
@@ -62,22 +56,6 @@ export const ChatMessages = ({
 
         {isLoading && <ChatLoading />}
       </Box>
-
-      {/* Scroll to Bottom Button */}
-      {showScrollButton && (
-        <Button
-          variant="outline"
-          size="icon-lg"
-          onClick={scrollToBottom}
-          aria-label="Rolar para a última mensagem"
-          className={cn(
-            "absolute bottom-44 right-8 z-10 rounded-full shadow-lg",
-            "transition-all duration-200",
-          )}
-        >
-          <ArrowDown strokeWidth={1.5} />
-        </Button>
-      )}
     </Box>
   );
 };

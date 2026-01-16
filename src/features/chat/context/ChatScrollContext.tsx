@@ -1,10 +1,27 @@
-import { useEffect, useRef, useState } from "react";
+"use client";
 
-interface useChatScrollProps {
+import { createContext, useContext, useEffect, useRef, useState } from "react";
+
+interface ChatScrollContextValue {
+  scrollRef: React.RefObject<HTMLDivElement | null>;
+  showScrollButton: boolean;
+  scrollToBottom: () => void;
+  handleScroll: () => void;
+}
+
+const ChatScrollContext = createContext<ChatScrollContextValue | undefined>(
+  undefined,
+);
+
+interface ChatScrollProviderProps {
+  children: React.ReactNode;
   messagesCount: number;
 }
 
-export const useChatScroll = ({ messagesCount }: useChatScrollProps) => {
+export const ChatScrollProvider = ({
+  children,
+  messagesCount,
+}: ChatScrollProviderProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [isUserScrolling, setIsUserScrolling] = useState(false);
@@ -53,10 +70,26 @@ export const useChatScroll = ({ messagesCount }: useChatScrollProps) => {
     }
   }, [messagesCount]);
 
-  return {
-    scrollRef,
-    showScrollButton,
-    handleScroll,
-    scrollToBottom,
-  };
+  return (
+    <ChatScrollContext.Provider
+      value={{
+        scrollRef,
+        showScrollButton,
+        scrollToBottom,
+        handleScroll,
+      }}
+    >
+      {children}
+    </ChatScrollContext.Provider>
+  );
+};
+
+export const useChatScrollContext = () => {
+  const context = useContext(ChatScrollContext);
+  if (context === undefined) {
+    throw new Error(
+      "useChatScrollContext must be used within a ChatScrollProvider",
+    );
+  }
+  return context;
 };

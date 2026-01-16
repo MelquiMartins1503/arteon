@@ -41,7 +41,7 @@ export async function POST(
 
     // Validar body com schema atualizado
     const body = await request.json();
-    const { prompt, important, isMeta, generateSuggestions } =
+    const { prompt, important, isMeta, generateSuggestions, imageUrls } =
       chatRequestSchema.parse(body);
 
     // Buscar história
@@ -349,18 +349,36 @@ export async function POST(
     // ========================================================================
     // SALVAR MENSAGENS
     // ========================================================================
-    // Salvar mensagem do usuário
-    const savedUserMessage = await prismaClient.message.create({
-      data: {
-        content: prompt,
-        summary: await generateSummaryIfNeeded(prompt), // NOVO: Resumo persistente
-        role: "USER",
-        conversationHistoryId: conversationHistoryWithMessages.id,
-        important: isImportantMessage,
-        isMeta: isUserCommandMeta, // ✅ Automático baseado no comando
-        generateSuggestions: generateSuggestions,
-        messageType: userMessageType,
-      },
+    // Salvar mensagem do usuário DENTRO de transação
+    const savedUserMessage = await prismaClient.$transaction(async (tx) => {
+      const userMessage = await tx.message.create({
+        data: {
+          content: prompt,
+          summary: await generateSummaryIfNeeded(prompt),
+          role: "USER",
+          conversationHistoryId: conversationHistoryWithMessages.id,
+          important: isImportantMessage,
+          isMeta: isUserCommandMeta,
+          generateSuggestions: generateSuggestions,
+          messageType: userMessageType,
+          imageUrls: imageUrls || [],
+        },
+      });
+
+      // Marcar imagens como usadas para prevenir limpeza
+      if (imageUrls && imageUrls.length > 0) {
+        await tx.uploadTracking.updateMany({
+          where: {
+            key: { in: imageUrls },
+            used: false,
+          },
+          data: {
+            used: true,
+          },
+        });
+      }
+
+      return userMessage;
     });
 
     // Se houve interrupção, salvar mensagem de interrupção
@@ -574,7 +592,7 @@ export async function GET(
 
     // Map messages to include dbId for frontend use
     const messages = messagesFromDb.map(
-      (msg: { id: { toString: () => any } }) => ({
+      (msg: { id: { toString: () => string } }) => ({
         ...msg,
         id: msg.id.toString(), // Convert to string for React keys
         dbId: msg.id, // Keep numeric ID for API calls

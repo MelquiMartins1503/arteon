@@ -1,0 +1,13 @@
+model UploadTracking {
+  id         Int      @id @default(autoincrement())
+  key        String   @unique
+  userId     Int
+  uploadedAt DateTime @default(now())
+  used       Boolean  @default(false)
+  
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([used, uploadedAt])
+  @@map("upload_tracking")
+  @@schema("public")
+}

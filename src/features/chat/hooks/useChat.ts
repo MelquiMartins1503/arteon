@@ -35,7 +35,7 @@ export function useChat({ chatId, apiEndpoint }: UseChatProps): ChatConfig {
       .then((data) => {
         if (data.messages) {
           const mappedMessages: ChatMessage[] = data.messages.map(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // biome-ignore lint/suspicious/noExplicitAny: incoming data is unknown
             (msg: any) => ({
               id: typeof msg.id === "number" ? msg.id.toString() : msg.id,
               dbId:
@@ -48,6 +48,7 @@ export function useChat({ chatId, apiEndpoint }: UseChatProps): ChatConfig {
               role: msg.role === "USER" ? "user" : "model",
               shouldAnimate: false, // Don't animate historical messages
               suggestedPrompts: msg.suggestedPrompts,
+              imageUrls: msg.imageUrls || [],
               status: "saved",
             }),
           );
@@ -78,6 +79,7 @@ export function useChat({ chatId, apiEndpoint }: UseChatProps): ChatConfig {
       content,
       role: "user",
       shouldAnimate: false,
+      imageUrls: metadata?.imageUrls || [],
       status: "pending",
     };
 
@@ -96,6 +98,7 @@ export function useChat({ chatId, apiEndpoint }: UseChatProps): ChatConfig {
           important: metadata?.important || false,
           isMeta: metadata?.isMeta || false,
           generateSuggestions: metadata?.generateSuggestions || false,
+          imageUrls: metadata?.imageUrls || [],
         },
         {
           signal: controller.signal,

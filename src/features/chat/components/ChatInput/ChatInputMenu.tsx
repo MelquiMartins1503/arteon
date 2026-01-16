@@ -30,7 +30,7 @@ export const ChatInputMenu = () => {
           width="md"
           className="z-50 p-0"
         >
-          <Settings2 strokeWidth={1.5} />
+          <Settings2 size={20} strokeWidth={1.5} />
         </Button>
       </Dropdown.Trigger>
       <Dropdown.Content align="start" side="top" className="w-[170px]">

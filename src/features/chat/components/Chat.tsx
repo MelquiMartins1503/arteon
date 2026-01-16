@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Box } from "@/components/Box";
 import { ChatProvider } from "../context/ChatContext";
+import { ChatScrollProvider } from "../context/ChatScrollContext";
 import { ChatHistoryLoading } from "./ChatHistoryLoading";
 import { ChatInput } from "./ChatInput";
 import { ChatMessages } from "./ChatMessages";
@@ -31,26 +32,28 @@ const Chat = ({
       onPromptClick={onPromptClick}
       onAnimationComplete={onAnimationComplete}
     >
-      <Box
-        gap={0}
-        flexDirection="col"
-        alignItems="center"
-        className="flex-1 w-full min-h-0"
-      >
-        {isLoadingHistory ? (
-          <ChatHistoryLoading />
-        ) : (
-          <ChatMessages messages={messages} welcomeMessage={welcomeMessage} />
-        )}
+      <ChatScrollProvider messagesCount={messages.length}>
+        <Box
+          gap={0}
+          flexDirection="col"
+          alignItems="center"
+          className="flex-1 w-full min-h-0"
+        >
+          {isLoadingHistory ? (
+            <ChatHistoryLoading />
+          ) : (
+            <ChatMessages messages={messages} welcomeMessage={welcomeMessage} />
+          )}
 
-        <ChatInput
-          onSendMessage={onSendMessage}
-          isLoading={isLoading}
-          onStopGeneration={onStopGeneration}
-          formId={CHAT_FORM_ID}
-          onValidityChange={setIsInputValid}
-        />
-      </Box>
+          <ChatInput
+            onSendMessage={onSendMessage}
+            isLoading={isLoading}
+            onStopGeneration={onStopGeneration}
+            formId={CHAT_FORM_ID}
+            onValidityChange={setIsInputValid}
+          />
+        </Box>
+      </ChatScrollProvider>
     </ChatProvider>
   );
 };

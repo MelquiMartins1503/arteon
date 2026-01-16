@@ -30,7 +30,11 @@ const envSchema = z.object({
 });
 
 // Validate and export
-export const env = envSchema.parse(process.env);
+// IMPORTANTE: Apenas valida no servidor, pois variáveis não estão disponíveis no cliente
+const isServer = typeof window === "undefined";
+export const env = isServer
+  ? envSchema.parse(process.env)
+  : ({} as z.infer<typeof envSchema>); // Cliente retorna objeto vazio
 
 // Type for autocomplete
 export type Env = z.infer<typeof envSchema>;

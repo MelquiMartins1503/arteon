@@ -37,7 +37,12 @@ export function NextThemeTrigger() {
   };
 
   return (
-    <Box as="button" type="button" onClick={toggleTheme}>
+    <Box
+      as="button"
+      type="button"
+      onClick={toggleTheme}
+      className="w-full h-full cursor-pointer"
+    >
       Toggle Theme
     </Box>
   );

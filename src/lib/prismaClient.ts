@@ -1,4 +1,4 @@
-import "dotenv/config";
+// Next.js automatically loads .env files, no need for dotenv/config
 
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";

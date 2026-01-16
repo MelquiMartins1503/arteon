@@ -5,6 +5,7 @@ export const chatInputSchema = z.object({
   important: z.boolean(),
   isMeta: z.boolean(),
   generateSuggestions: z.boolean(),
+  imageUrls: z.array(z.string()).transform((val) => val ?? []),
 });
 
 export type ChatInputFormValues = z.infer<typeof chatInputSchema>;

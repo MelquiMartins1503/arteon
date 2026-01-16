@@ -77,6 +77,7 @@ export default function PrivateLayout({
             </Dropdown.Content>
           </Dropdown>
         </Box>
+
         {children}
       </Box>
     </Box>

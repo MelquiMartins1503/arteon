@@ -7,6 +7,9 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { env } from "./env";
 import logger from "./logger";
 
+// IMPORTANT: This module should only be imported in server-side code (API routes)
+// Client-side code should use /api/presigned-url endpoint instead
+
 const R2 = new S3Client({
   region: "auto",
   endpoint: `https://${env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,

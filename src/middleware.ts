@@ -34,11 +34,13 @@ export async function middleware(request: NextRequest) {
   let userId: string | undefined;
 
   // 1. Verificar o token JWT
+  // NOTA: Verificação de existência do usuário é feita em getAuthenticatedUser() nas APIs
+  // Middleware roda no Edge Runtime que não suporta Prisma/database
   if (accessToken) {
     try {
       const { payload } = await jwtVerify(accessToken, secret);
       isAuthenticated = true;
-      userId = payload.sub as string | undefined;
+      userId = payload.id?.toString() || (payload.sub as string | undefined);
 
       logger.debug({ userId, path, ip: clientIp }, "Authenticated request");
     } catch (err) {

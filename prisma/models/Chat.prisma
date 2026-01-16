@@ -35,6 +35,7 @@ model Message {
 
     summary String?
     audioUrl String?
+    imageUrls String[] @default([])
 
     important Boolean @default(false)
     isMeta Boolean @default(false)

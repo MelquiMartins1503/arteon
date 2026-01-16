@@ -15,11 +15,7 @@ export const ChatInputTags = () => {
   } = useChatInputTags();
 
   return (
-    <Box
-      alignItems="center"
-      gap={1}
-      className="max-[768px]:w-[330px] max-[768px]:overflow-hidden max-[768px]:overflow-x-scroll"
-    >
+    <Box alignItems="center" gap={1} className="max-md:hidden">
       <AnimatePresence>
         {important && (
           <motion.div

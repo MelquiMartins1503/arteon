@@ -338,13 +338,13 @@ export function SidebarDialogs({
                 <Field.Root>
                   <Form.Group>
                     <Field.Label>
-                      Knowledge Base (Dossie) - Importação Automática
+                      Dossiê da História (Base de Conhecimento)
                     </Field.Label>
                     {errorsEdit.knowledgeBaseInput && <Field.ErrorMessage />}
                   </Form.Group>
                   <Field.TextAreaWrapper minRows={4} maxRows={6}>
                     <Field.TextAreaInput
-                      placeholder={`Cole aqui informações estruturadas sobre a história. As informações serão processadas automaticamente e adicionadas à Knowledge Base.`}
+                      placeholder="Cole aqui o conteúdo estruturado do dossiê. A IA processará e organizará as informações automaticamente."
                       {...registerEdit("knowledgeBaseInput")}
                     />
                   </Field.TextAreaWrapper>

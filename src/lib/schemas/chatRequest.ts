@@ -15,6 +15,7 @@ export const chatRequestSchema = z.object({
   important: z.boolean().default(false),
   isMeta: z.boolean().default(false),
   generateSuggestions: z.boolean().default(false),
+  imageUrls: z.array(z.string()).default([]),
 });
 
 export type ChatRequest = z.infer<typeof chatRequestSchema>;

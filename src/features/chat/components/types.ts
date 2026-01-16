@@ -12,6 +12,7 @@ export interface ChatMessage {
   suggestedPrompts?: string[]; // Sugestões de acompanhamento da IA
   isLastMessage?: boolean; // Se é a última mensagem (para controlar botões)
   audioUrl?: string; // URL do audio gerado
+  imageUrls?: string[]; // URLs das imagens anexadas
 
   status?: "pending" | "saved" | "error"; // Tracking state: pending (temp ID), saved (has dbId), error (failed)
 }
@@ -22,6 +23,8 @@ export interface ChatMessage {
 export interface MessageMetadata {
   important?: boolean;
   isMeta?: boolean;
+  generateSuggestions?: boolean;
+  imageUrls?: string[];
   [key: string]: unknown;
 }
 

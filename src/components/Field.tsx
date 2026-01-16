@@ -315,7 +315,7 @@ const TextAreaInput = forwardRef<
     expandButtonPosition,
   } = useTextArea();
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: adjustHeight is stable but not in deps for performance
   const adjustHeight = useCallback(
     (el: HTMLTextAreaElement) => {
       el.style.height = "auto";
@@ -370,7 +370,6 @@ const TextAreaInput = forwardRef<
         adjustHeight(currentRef);
       }
     }
-    // biome-ignore lint/correctness/useExhaustiveDependencies: value needed to adjust height on external changes
   }, [adjustHeight, textAreaRef, value, setIsExpanded, setHasOverflow]);
 
   // Calculate height constraints based on expanded state
@@ -398,7 +397,7 @@ const TextAreaInput = forwardRef<
         maxHeight: calculateMaxHeight(),
       }}
       className={cn(
-        "w-full bg-transparent outline-none resize-none overflow-auto",
+        "w-full bg-transparent outline-none resize-none overflow-auto transition-all duration-200 ease-in-out",
         "text-brand-900 dark:text-brand-50 placeholder:text-brand-600 dark:placeholder:text-brand-600",
         expandButtonPosition === "inside" && "pr-0",
         className,

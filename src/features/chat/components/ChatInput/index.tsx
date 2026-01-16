@@ -1,13 +1,17 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowUp } from "lucide-react";
+import { ArrowDown, ArrowUp } from "lucide-react";
 import { memo, useCallback, useEffect, useState, useTransition } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { Box } from "@/components/Box";
 import { Button } from "@/components/Button";
 import Field from "@/components/Field";
+import { ChatInputImageButton } from "@/features/chat/components/ChatInput/ChatInputImageButton";
+import { useChatScrollContext } from "@/features/chat/context/ChatScrollContext";
 import type { ChatInputFormValues } from "@/features/chat/schemas/chatInputSchema";
 import { chatInputSchema } from "@/features/chat/schemas/chatInputSchema";
+import { cn } from "@/lib/cn";
 import type { ChatInputProps } from "../types";
+import { ChatInputImagePreview } from "./ChatInputImagePreview";
 import { ChatInputMenu } from "./ChatInputMenu";
 import { ChatInputTags } from "./ChatInputTags";
 import {
@@ -31,6 +35,7 @@ const ChatInputInner: React.FC<ChatInputProps> = ({
   } = useChatInputTags();
 
   const [isMobile, setIsMobile] = useState(false);
+  const [attachedImages, setAttachedImages] = useState<string[]>([]);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -67,6 +72,7 @@ const ChatInputInner: React.FC<ChatInputProps> = ({
       important: false,
       isMeta: false,
       generateSuggestions: false,
+      imageUrls: [],
     },
     mode: "onChange",
   });
@@ -77,6 +83,7 @@ const ChatInputInner: React.FC<ChatInputProps> = ({
     formState: { isValid },
     reset,
     watch,
+    setValue,
   } = methods;
 
   // Observar o conteúdo real do campo
@@ -96,6 +103,7 @@ const ChatInputInner: React.FC<ChatInputProps> = ({
       // Reset form immediately to prevent double submission
       reset();
       resetTags();
+      setAttachedImages([]);
 
       startTransition(async () => {
         // Use values from context instead of form
@@ -103,17 +111,20 @@ const ChatInputInner: React.FC<ChatInputProps> = ({
           important,
           isMeta,
           generateSuggestions,
+          imageUrls: data.imageUrls,
         });
       });
     },
     [onSendMessage, reset, important, isMeta, generateSuggestions, resetTags],
   );
 
+  const { showScrollButton, scrollToBottom } = useChatScrollContext();
+
   return (
     <Box
       alignItems="end"
       justifyContent="end"
-      className="w-full min-h-26.5 max-h-58.5 px-4 pb-4 h-auto shadow-[0px_-24px_18px_-4px_rgba(255,255,255,0.95)] dark:shadow-[0px_-24px_18px_-4px_rgba(27,27,27,0.95)]"
+      className="relative w-10/12 max-md:w-full min-h-26.5 max-h-58.5 px-4 pb-4 h-auto shadow-[0px_-24px_18px_-4px_rgba(255,255,255,0.95)] dark:shadow-[0px_-24px_18px_-4px_rgba(27,27,27,0.95)]"
     >
       <FormProvider {...methods}>
         <Box
@@ -124,26 +135,54 @@ const ChatInputInner: React.FC<ChatInputProps> = ({
         >
           <Field>
             <Field.Root className="relative">
+              {showScrollButton && (
+                <Button
+                  variant="outline"
+                  size="icon-lg"
+                  onClick={scrollToBottom}
+                  aria-label="Rolar para a última mensagem"
+                  className={cn(
+                    "absolute right-0 bottom-full z-10 mb-4 rounded-full shadow-lg",
+                    "transition-all duration-200",
+                  )}
+                >
+                  <ArrowDown strokeWidth={1.5} />
+                </Button>
+              )}
               <Field.TextAreaWrapper
                 gap={2}
                 minRows={1}
                 maxRows={6}
-                expandedMaxRows={12}
+                expandedMaxRows={18}
                 className="pr-5"
               >
+                <ChatInputImagePreview
+                  imageKeys={attachedImages}
+                  onRemove={(index) => {
+                    const newImages = attachedImages.filter(
+                      (_, i) => i !== index,
+                    );
+                    setAttachedImages(newImages);
+                    setValue("imageUrls", newImages);
+                  }}
+                />
                 <Field.TextAreaInput
                   {...register("content")}
                   placeholder="Digite aqui..."
-                  className="pr-7"
+                  className="pr-7 scrollbar-custom"
                   onKeyDown={handleKeyDown}
                 />
                 <Field.TextAreaExpandButton className="top-1 right-1" />
-                <Box
-                  alignItems="center"
-                  justifyContent="between"
-                  className="w-full"
-                >
+                <Box alignItems="center" justifyContent="between">
                   <Box alignItems="center" gap={2}>
+                    <ChatInputImageButton
+                      onImagesUploaded={(urls) => {
+                        const newImages = [...attachedImages, ...urls];
+                        setAttachedImages(newImages);
+                        setValue("imageUrls", newImages);
+                      }}
+                      disabled={isLoading}
+                    />
                     <ChatInputMenu />
                     <ChatInputTags />
                   </Box>

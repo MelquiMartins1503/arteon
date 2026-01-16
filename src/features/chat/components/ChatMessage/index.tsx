@@ -12,6 +12,7 @@ interface ChatMessage {
   suggestedPrompts?: string[];
   isLastMessage?: boolean;
   status?: "pending" | "saved" | "error";
+  imageUrls?: string[];
 }
 
 interface ChatMessageProps {
@@ -22,7 +23,12 @@ export const ChatMessage = ({ message }: ChatMessageProps) => {
   const isUser = message.role === "user";
 
   if (isUser) {
-    return <ChatMessageUser content={message.content} />;
+    return (
+      <ChatMessageUser
+        content={message.content}
+        imageUrls={message.imageUrls}
+      />
+    );
   }
 
   return (
