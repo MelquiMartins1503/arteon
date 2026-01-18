@@ -8,6 +8,7 @@ import type { NarrativeCommand } from "./CommandDetector";
  */
 export async function handlePauseModeCommands(
   rawCommand: NarrativeCommand,
+  userPrompt: string,
   isInPauseMode: boolean,
   conversationHistoryId: number,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -20,12 +21,38 @@ export async function handlePauseModeCommands(
       data: { pauseNarrativeMode: true },
     });
 
+    // Salvar mensagem do usuário (Comando)
+    await prisma.message.create({
+      data: {
+        content: userPrompt,
+        role: "USER",
+        conversationHistoryId,
+        important: true,
+        isMeta: true,
+        messageType: "GENERAL",
+      },
+    });
+
+    const responseMessage =
+      "**Modo PAUSAR NARRATIVA Ativado**\n\nA narrativa está congelada. Você pode:\n- Discutir estratégias e ideias\n- Revisar detalhes de personagens e eventos\n- Fazer brainstorming sem comprometer-se\n- Planejar desenvolvimentos futuros\n\nQuando estiver pronto para retomar, use **[RETOMAR NARRATIVA]**.";
+
+    // Salvar resposta do sistema
+    await prisma.message.create({
+      data: {
+        content: responseMessage,
+        role: "MODEL",
+        conversationHistoryId,
+        important: true,
+        isMeta: true,
+        messageType: "GENERAL",
+      },
+    });
+
     logger.info("Modo PAUSAR NARRATIVA ativado");
 
     return NextResponse.json(
       {
-        message:
-          "**Modo PAUSAR NARRATIVA Ativado**\n\nA narrativa está congelada. Você pode:\n- Discutir estratégias e ideias\n- Revisar detalhes de personagens e eventos\n- Fazer brainstorming sem comprometer-se\n- Planejar desenvolvimentos futuros\n\nQuando estiver pronto para retomar, use **[RETOMAR NARRATIVA]**.",
+        message: responseMessage,
         suggestedPrompts: [],
       },
       { status: 200 },
@@ -37,6 +64,18 @@ export async function handlePauseModeCommands(
     await prisma.conversationHistory.update({
       where: { id: conversationHistoryId },
       data: { pauseNarrativeMode: false },
+    });
+
+    // Salvar mensagem do usuário (Comando)
+    await prisma.message.create({
+      data: {
+        content: userPrompt,
+        role: "USER",
+        conversationHistoryId,
+        important: true,
+        isMeta: true,
+        messageType: "GENERAL",
+      },
     });
 
     logger.info("Modo PAUSAR NARRATIVA desativado - retomando narrativa");
@@ -54,9 +93,23 @@ export async function handlePauseModeCommands(
       lastDeca?.content ||
       "Nenhum DECA encontrado. Comece gerando um com [GERAR DECA].";
 
+    const responseMessage = `**NARRATIVA RETOMADA**\n\n${decaContent}\n\n---\n\n**Próximo passo recomendado:**\n- **[SUGERIR PRÓXIMA SEÇÃO]** → Planejar próximo passo\n\nAguardando seu comando.`;
+
+    // Salvar resposta do sistema
+    await prisma.message.create({
+      data: {
+        content: responseMessage,
+        role: "MODEL",
+        conversationHistoryId,
+        important: true,
+        isMeta: true,
+        messageType: "SYSTEM",
+      },
+    });
+
     return NextResponse.json(
       {
-        message: `**NARRATIVA RETOMADA**\n\n${decaContent}\n\n---\n\n**Próximo passo recomendado:**\n- **[SUGERIR PRÓXIMA SEÇÃO]** → Planejar próximo passo\n\nAguardando seu comando.`,
+        message: responseMessage,
         suggestedPrompts: [],
       },
       { status: 200 },

@@ -156,6 +156,7 @@ export async function POST(
     // ========================================================================
     const pauseModeResponse = await handlePauseModeCommands(
       rawCommand,
+      prompt,
       isInPauseMode,
       conversationHistoryWithMessages.id,
       prismaClient,
