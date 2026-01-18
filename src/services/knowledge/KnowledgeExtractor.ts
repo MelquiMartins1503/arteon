@@ -196,22 +196,78 @@ TEXTO DO DOSSIÊ:
 ${text}
 """
 
+**TIPOS DE ENTIDADES - GUIA COMPLETO:**
+
+USE TODOS OS TIPOS APROPRIADAMENTE. Este é um dossiê completo, então você deve extrair MUITO mais entidades do que em uma conversa normal.
+
+1. **CHARACTER** (Personagem)
+   • O QUE: Qualquer pessoa, ser consciente com nome próprio
+   • EXEMPLOS: "Klaus Von Mittelsen", "O Narrador", "Dr. Silva", "Anneliese"
+   • NÃO USE PARA: Grupos de pessoas (use FACTION)
+
+2. **LOCATION** (Local)
+   • O QUE: Lugares físicos específicos com nome próprio
+   • EXEMPLOS: "Biblioteca de Memórias", "São Paulo", "Mansão Valendorf"
+   • NÃO USE PARA: Conceitos espaciais abstratos (use CONCEPT)
+
+3. **OBJECT** (Objeto)
+   • O QUE: Itens físicos importantes, artefatos nomeados
+   • EXEMPLOS: "Espada Flamejante", "Diário de Klaus", "Anel de Safira"
+
+4. **EVENT** (Evento)
+   • O QUE: Acontecimentos significativos nomeados ou datados
+   • EXEMPLOS: "Batalha de 1964", "Primeiro Encontro", "Golpe Militar"
+
+5. **CONCEPT** (Conceito)
+   • O QUE: Sistemas, leis, magias, tecnologias, filosofias explicadas
+   • EXEMPLOS: "Sistema de Magia Rúnica", "Darwinismo Social", "Protocolo Narrativo"
+
+6. **FACTION** (Facção/Organização)
+   • O QUE: Grupos, organizações, ordens, famílias, casas nobres
+   • EXEMPLOS: "Casa Von Mittelsen", "SS", "Guilda dos Mercadores"
+   • NÃO USE PARA: Pessoas individuais
+
+7. **DECISION** (Decisão)
+   • O QUE: Escolhas importantes mencionadas que impactaram a história
+   • EXEMPLOS: "Decisão de Klaus de esconder sua verdadeira identidade"
+   • USE COM MODERAÇÃO: Apenas para decisões realmente cruciais documentadas
+
+8. **RELATIONSHIP** (Relacionamento)
+   • RARAMENTE NECESSÁRIO: Use o campo relationships ao invés
+   • QUANDO USAR: Apenas se o relacionamento for um conceito nomeado importante
+   • EXEMPLO: "O Pacto de Sangue entre as Casas"
+
+9. **OTHER** (Outro)
+   • ÚLTIMO RECURSO: Use apenas se não se encaixar em nenhuma categoria acima
+
+**ÁRVORE DE DECISÃO:**
+┌─ É uma pessoa individual? → CHARACTER
+├─ É um grupo/família/organização? → FACTION
+├─ É um lugar físico? → LOCATION
+├─ É um objeto físico? → OBJECT
+├─ É um acontecimento histórico? → EVENT
+├─ É uma escolha crucial documentada? → DECISION
+├─ É um sistema/lei/filosofia abstrata? → CONCEPT
+└─ Não encaixa em nada? → OTHER (último recurso)
+
 INSTRUÇÕES:
-1. Identifique Personagens, Locais, Facções, Eventos, Objetos e Conceitos.
-2. Extraia descrições ricas, não apenas resumos.
-3. Se houver listas de atributos (idade, classe, etc), inclua no campo 'attributes'.
-4. Identifique TODOS os relacionamentos mencionados (pai/filho, rival, aliado, localizado em, membro de).
-5. O resultado deve ser JSON puro.
+1. Como é um dossiê, extraia TUDO - seja abundante, não minimalista
+2. Identifique Personagens, Locais, Facções, Eventos, Objetos e Conceitos
+3. Extraia descrições ricas e detalhadas, não apenas resumos
+4. Se houver listas de atributos (idade, classe, etc), inclua no campo 'attributes'
+5. Identifique TODOS os relacionamentos mencionados (pai/filho, rival, aliado, localizado em, membro de)
+6. Importance: 10 para protagonistas/locais principais, 7-9 para secundários importantes, 4-6 para moderados, 1-3 para passagens
+7. O resultado deve ser JSON puro
 
 FORMATO DE RESPOSTA (JSON):
 {
   "entities": [
     {
-      "type": "CHARACTER" | "LOCATION" | "FACTION" | "EVENT" | "OBJECT" | "CONCEPT",
+      "type": "CHARACTER" | "LOCATION" | "FACTION" | "EVENT" | "OBJECT" | "CONCEPT" | "DECISION" | "RELATIONSHIP" | "OTHER",
       "name": "Nome da Entidade",
       "description": "Descrição detalhada...",
       "attributes": { "key": "value" },
-      "importance": 1-10 (baseado na relevância no texto),
+      "importance": 1-10,
       "aliases": ["Apelido1", "Outro Nome"]
     }
   ],
@@ -269,15 +325,67 @@ Analise este texto narrativo e extraia TODAS as informações relevantes:
 
 ${content}
 
-**CATEGORIAS (extraia TUDO que se encaixar):**
+**TIPOS DE ENTIDADES - GUIA COMPLETO:**
 
-1. **CHARACTER:** Qualquer pessoa com nome próprio
-2. **LOCATION:** Lugares específicos (cidades, prédios, regiões)
-3. **OBJECT:** Itens importantes mencionados
-4. **EVENT:** Acontecimentos significativos (passados ou presentes)
-5. **CONCEPT:** Sistemas, leis, magias, tecnologias explicadas
-6. **FACTION:** Organizações, grupos, ordens mencionadas
-7. **DECISION:** Escolhas importantes de personagens
+USE TODOS OS TIPOS APROPRIADAMENTE. Não se limite apenas a CHARACTER e LOCATION.
+
+1. **CHARACTER** (Personagem)
+   • O QUE: Qualquer pessoa, ser consciente com nome próprio
+   • EXEMPLOS: "Klaus Von Mittelsen", "O Narrador", "Dr. Silva", "Anneliese"
+   • NÃO USE PARA: Grupos de pessoas (use FACTION), menções genéricas sem nome
+
+2. **LOCATION** (Local)
+   • O QUE: Lugares físicos específicos com nome próprio
+   • EXEMPLOS: "Biblioteca de Memórias", "São Paulo", "Mansão Valendorf", "Santuário de Klaus"
+   • NÃO USE PARA: Conceitos espaciais abstratos (use CONCEPT)
+
+3. **OBJECT** (Objeto)
+   • O QUE: Itens físicos importantes, artefatos nomeados ou significativos
+   • EXEMPLOS: "Espada Flamejante", "Diário de Klaus", "Anel de Safira", "Relíquia Familiar"
+   • NÃO USE PARA: Conceitos abstratos (use CONCEPT) ou locais (use LOCATION)
+
+4. **EVENT** (Evento)
+   • O QUE: Acontecimentos significativos nomeados, datados ou históricos
+   • EXEMPLOS: "Batalha de 1964", "Primeiro Encontro", "Golpe Militar", "Inauguração da Biblioteca"
+   • NÃO USE PARA: Decisões de personagens (use DECISION)
+
+5. **CONCEPT** (Conceito)
+   • O QUE: Sistemas, leis, magias, tecnologias, filosofias, ideias abstratas explicadas
+   • EXEMPLOS: "Sistema de Magia Rúnica", "Lei da Conservação", "Darwinismo Social", "Protocolo Narrativo"
+   • NÃO USE PARA: Objetos físicos, pessoas, ou organizações
+
+6. **FACTION** (Facção/Organização)
+   • O QUE: Grupos, organizações, ordens, famílias, casas nobres nomeadas
+   • EXEMPLOS: "Casa Von Mittelsen", "SS", "Guilda dos Mercadores", "Família Valendorf"
+   • NÃO USE PARA: Pessoas individuais (use CHARACTER)
+
+7. **DECISION** (Decisão)
+   • O QUE: Escolhas importantes tomadas por personagens que impactam significativamente a trama
+   • EXEMPLOS: "Klaus decide revelar seu passado", "Decisão de ir à guerra", "Escolha de abandonar a família"
+   • QUANDO USAR: Apenas se for uma escolha explícita e importante mencionada no texto
+   • NÃO USE PARA: Eventos que simplesmente acontecem (use EVENT)
+
+8. **RELATIONSHIP** (Relacionamento)
+   • O QUE: Raramente usado como entidade - prefira usar o sistema de relationships
+   • QUANDO USAR: Apenas se o relacionamento em si for um conceito importante nomeado
+   • EXEMPLO: "O Pacto de Sangue entre as Casas", "A Aliança Eterna"
+   • NÃO USE PARA: Relacionamentos normais entre pessoas (use o campo relationships)
+
+9. **OTHER** (Outro)
+   • O QUE: Informações relevantes que não se encaixam em NENHUMA categoria acima
+   • QUANDO USAR: Como ÚLTIMO RECURSO. Tente sempre usar um dos tipos específicos
+   • EVITE: Usar OTHER por preguiça de classificar corretamente
+
+**ÁRVORE DE DECISÃO RÁPIDA:**
+┌─ É uma pessoa/ser consciente individual? → CHARACTER
+├─ É um grupo/organização/família? → FACTION
+├─ É um lugar físico nomeado? → LOCATION
+├─ É um objeto físico importante? → OBJECT
+├─ É um acontecimento/batalha/evento histórico? → EVENT
+├─ É uma escolha importante de personagem? → DECISION
+├─ É um sistema/lei/magia/filosofia abstrata? → CONCEPT
+├─ É um relacionamento nomeado importante? → RELATIONSHIP (raro)
+└─ Não se encaixa em nada acima? → OTHER (último recurso)
 
 **ENTIDADES JÁ RASTREADAS:**
 ${existingList}
@@ -285,13 +393,13 @@ ${existingList}
 **REGRAS CRÍTICAS:**
 - Se uma entidade acima for mencionada novamente, marque isNew: false
 - Extraia APENAS informações NOVAS ou ATUALIZADAS
-- Seja DETALHADO nas descrições (2-4 frases)
+- Seja DETALHADO nas descrições (2-4 frases completas)
 - Atribua importance de 1-10:
   * 10 = crucial para a trama (protagonista, local principal)
-  * 7-9 = muito importante (personagens secundários chave)
+  * 7-9 = muito importante (personagens secundários chave, facções principais)
   * 4-6 = moderadamente importante
   * 1-3 = menção de passagem
-- Se isNew: false, indique em "changes" O QUE mudou
+- Se isNew: false, indique em "changes" O QUE mudou exatamente
 
 **RELACIONAMENTOS:**
 Identifique também relacionamentos explícitos entre entidades. Use tipos:
