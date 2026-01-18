@@ -185,223 +185,218 @@ export class KnowledgeExtractor {
    * Extrai entidades de um dossiê completo ou texto estruturado (Bulk Import)
    * Focado em criar uma base de conhecimento inicial a partir de texto livre
    */
+  /**
+   * Extrai entidades de um dossiê completo ou texto estruturado (Bulk Import)
+   * Focado em criar uma base de conhecimento inicial a partir de texto livre
+   * Suporta textos grandes dividindo em chunks
+   */
   async extractFromDossier(text: string): Promise<ExtractionResult> {
-    try {
-      const prompt = `
+    const CHUNK_SIZE = 12000; // Reduzido para ~3k tokens para garantir espaço de output
+    const chunks = this.splitTextIntoChunks(text, CHUNK_SIZE);
+
+    if (chunks.length > 1) {
+      logger.info(
+        {
+          totalLength: text.length,
+          chunksCount: chunks.length,
+          chunkSize: CHUNK_SIZE,
+        },
+        "📜 Texto grande detectado. Usando estratégia de Chunking com Contexto.",
+      );
+    }
+
+    const combinedResult: ExtractionResult = {
+      entities: [],
+      relationships: [],
+    };
+
+    // Manter lista de nomes já extraídos para informar o próximo chunk
+    const extractedNames = new Set<string>();
+
+    for (const [index, chunk] of chunks.entries()) {
+      try {
+        if (chunks.length > 1) {
+          logger.info(
+            { chunk: index + 1, total: chunks.length },
+            "⏳ Processando chunk...",
+          );
+        }
+
+        const contextInfo =
+          index > 0
+            ? `\n📋 **ENTIDADES DOS CHUNKS ANTERIORES (apenas para referência de nomes - NÃO significa que você deve ignorá-las se aparecerem aqui):**\n${Array.from(extractedNames).slice(0, 50).join(", ")}${extractedNames.size > 50 ? "..." : ""}\n`
+            : "";
+
+        const prompt = `
 Você é um especialista em estruturar lore e worldbuilding.
 
-🎯 MISSÃO CRÍTICA: EXTRAIA ABSOLUTAMENTE TUDO deste dossiê. Seja ABUNDANTE, não minimalista.
-Prefira extrair DEMAIS do que de menos. Este é um documento completo de worldbuilding.
+🎯 MISSÃO CRÍTICA: EXTRAIA **TODAS** AS ENTIDADES MENCIONADAS NESTE TRECHO.
+Este é o chunk ${index + 1} de ${chunks.length}. Você DEVE processar TODO o conteúdo abaixo.
 
-TEXTO DO DOSSIÊ:
+TEXTO DO DOSSIÊ (PARTE ${index + 1}):
 """
-${text}
+${chunk}
 """
+${contextInfo}
+⚠️ REGRAS ABSOLUTAS:
+✅ **EXTRAIA TODAS as entidades mencionadas neste trecho, MESMO que o nome apareça na lista acima**
+✅ **Descrições detalhadas**: 3-5 frases para principais, 2-3 para secundárias
+✅ **Atributos completos**: Idade, aparência, poderes, origem, tudo que for mencionado
+✅ **Relacionamentos**: Identifique TODOS, mesmo implícitos
+❌ **NÃO pule nenhuma entidade** só porque o nome está na lista de contexto
+❌ **NÃO resuma** - seja detalhado
 
-⚠️ REGRAS DE COMPLETUDE:
-✅ Extraia TODAS as entidades mencionadas, mesmo que brevemente
-✅ Descrições: Mínimo 3-5 frases para entidades principais, 2-3 para secundárias
-✅ Atributos: Capture TODOS os detalhes mencionados (idade, aparência, classe, poderes, origem, etc)
-✅ Aliases: Todos os nomes alternativos, apelidos, títulos
-✅ Relacionamentos: Identifique TODOS, mesmo os implícitos
-❌ NÃO omita informações por considerá-las "menores"
-❌ NÃO resuma excessivamente - seja detalhado
+💡 **SOBRE O CONTEXTO**: A lista acima mostra nomes de outros chunks. Se você encontrar os mesmos nomes aqui COM NOVAS informações, extraia normalmente. Se forem entidades DIFERENTES com nomes similares, extraia também.
 
 **TIPOS DE ENTIDADES:**
+- **CHARACTER** (Personagem): Pessoas, seres conscientes
+- **LOCATION** (Local): Lugares físicos nomeados
+- **OBJECT** (Objeto): Itens importantes, artefatos
+- **EVENT** (Evento): Acontecimentos significativos
+- **CONCEPT** (Conceito): Sistemas, leis, magias, filosofias
+- **FACTION** (Facção): Grupos, organizações, famílias
+- **DECISION** (Decisão): Escolhas importantes
 
-1. **CHARACTER** (Personagem)
-   • O QUE: Qualquer pessoa, ser consciente com nome próprio
-   • EXEMPLOS: "Klaus Von Mittelsen", "O Narrador", "Dr. Silva", "Anneliese"
-   • DESCRIÇÃO: Inclua aparência, personalidade, história, motivações, poderes (se houver)
-   • ATTRIBUTES: idade, classe, profissão, habilidades, aparência física
-   • NÃO USE PARA: Grupos de pessoas (use FACTION)
+**TIPOS DE RELACIONAMENTOS VÁLIDOS (use EXATAMENTE estes nomes):**
+- **FAMILY** - Família (pai, mãe, irmão, filho, cônjuge)
+- **FRIENDSHIP** - Amizade, aliados próximos
+- **ROMANCE** - Romance, amor, relacionamento amoroso
+- **RIVALRY** - Rivalidade, competição
+- **MENTORSHIP** - Mentor/aprendiz, mestre/estudante
+- **HIERARCHY** - Superior/subordinado, comando, liderança
+- **ALLIANCE** - Aliança política/estratégica
+- **ENEMY** - Inimizade declarada, antagonismo
+- **OWNERSHIP** - Posse (CHARACTER → OBJECT)
+- **RESIDENCE** - Moradia (CHARACTER → LOCATION)
+- **MEMBERSHIP** - Membro de, pertence a (CHARACTER → FACTION) - **USE PARA FUNDADORES**
+- **PARTICIPATION** - Participou de (CHARACTER → EVENT)
+- **BELIEF** - Acredita em, segue (CHARACTER → CONCEPT)
+- **AFFILIATION** - Afiliação geral (use somente se nenhum outro se aplicar)
 
-2. **LOCATION** (Local)
-   • O QUE: Lugares físicos específicos com nome próprio
-   • EXEMPLOS: "Biblioteca de Memórias", "São Paulo", "Mansão Valendorf", "Sala Secreta"
-   • DESCRIÇÃO: Inclua aparência, atmosfera, história, importância
-   • ATTRIBUTES: tamanho, tipo, região, características especiais
-   • NÃO USE PARA: Conceitos espaciais abstratos (use CONCEPT)
-
-3. **OBJECT** (Objeto)
-   • O QUE: Itens físicos importantes, artefatos nomeados
-   • EXEMPLOS: "Espada Flamejante", "Diário de Klaus", "Anel de Safira"
-   • DESCRIÇÃO: Aparência, poderes/propriedades, história, significado
-   • ATTRIBUTES: material, poderes, origem, condição
-
-4. **EVENT** (Evento)
-   • O QUE: Acontecimentos significativos nomeados ou datados
-   • EXEMPLOS: "Batalha de 1964", "Primeiro Encontro", "Golpe Militar"
-   • DESCRIÇÃO: O que aconteceu, quando, onde, quem participou, consequências
-   • ATTRIBUTES: data, local, participantes, resultado
-
-5. **CONCEPT** (Conceito)
-   • O QUE: Sistemas, leis, magias, tecnologias, filosofias, ideologias
-   • EXEMPLOS: "Sistema de Magia Rúnica", "Darwinismo Social", "Protocolo Narrativo"
-   • DESCRIÇÃO: Como funciona, regras, origem, importância
-   • ATTRIBUTES: tipo, regras, limitações
-
-6. **FACTION** (Facção/Organização)
-   • O QUE: Grupos, organizações, ordens, famílias, casas nobres
-   • EXEMPLOS: "Casa Von Mittelsen", "SS", "Guilda dos Mercadores", "Conselho dos Anciões"
-   • DESCRIÇÃO: Propósito, história, estrutura, influência, membros notáveis
-   • ATTRIBUTES: tipo, liderança, tamanho, influência
-   • NÃO USE PARA: Pessoas individuais
-
-7. **DECISION** (Decisão)
-   • O QUE: Escolhas importantes que impactaram significativamente a trama
-   • EXEMPLOS: "Decisão de Klaus de revelar seu passado", "Escolha de abandonar a família"
-   • USE COM MODERAÇÃO: Apenas decisões cruciais e bem documentadas
-
-8. **RELATIONSHIP** (Relacionamento como conceito)
-   • RARAMENTE NECESSÁRIO: Use o campo relationships ao invés
-   • QUANDO USAR: Apenas se o relacionamento for um conceito nomeado
-   • EXEMPLO: "O Pacto de Sangue entre as Casas"
-
-9. **OTHER** (Outro)
-   • ÚLTIMO RECURSO: Use apenas se não se encaixar em nenhuma categoria acima
-
-**RELACIONAMENTOS - GUIA COMPLETO:**
-
-Identifique TODOS os relacionamentos explícitos e implícitos. Seja exaustivo.
-
-📌 **RELAÇÕES PESSOAIS** (entre CHARACTERs):
-- **FAMILY** (Família): pai, mãe, irmão, filho, cônjuge, parente
-  • Strength: 8-10 (laços familiares são fortes)
-  • Formato: CHARACTER → CHARACTER
-
-- **FRIENDSHIP** (Amizade): amigos, aliados próximos, companheiros
-  • Strength: 5-9 (varia conforme proximidade)
-  • Formato: CHARACTER → CHARACTER
-
-- **ROMANCE** (Romance/Amor): relacionamento amoroso, paixão, interesse romântico
-  • Strength: 7-10 (relações amorosas são intensas)
-  • Formato: CHARACTER → CHARACTER
-
-- **RIVALRY** (Rivalidade): rivais, competidores, antagonismo
-  • Strength: 5-9 (varia conforme intensidade)
-  • Formato: CHARACTER → CHARACTER
-
-- **MENTORSHIP** (Mentor/Aprendiz): mestre e estudante, tutor e pupilo
-  • Strength: 6-9 (relação de ensino/aprendizado)
-  • Formato: CHARACTER (mentor) → CHARACTER (aprendiz)
-
-🏛️ **RELAÇÕES ORGANIZACIONAIS**:
-- **HIERARCHY** (Superior/Subordinado): comando, liderança, autoridade
-  • Strength: 7-10 (relações de poder)
-  • Formato: CHARACTER (superior) → CHARACTER (subordinado)
-
-- **ALLIANCE** (Aliança): alianças políticas, parcerias, coalizões
-  • Strength: 5-9 (varia conforme confiança)
-  • Formato: FACTION → FACTION ou CHARACTER → CHARACTER
-
-- **ENEMY** (Inimizade): inimigos declarados, oposição, hostilidade
-  • Strength: 7-10 (inimizades são intensas)
-  • Formato: CHARACTER → CHARACTER ou FACTION → FACTION
-
-🔗 **RELAÇÕES CONTEXTUAIS** (entidade com mundo):
-- **OWNERSHIP** (Posse): possui, é dono de
-  • Strength: 5-8 (varia conforme valor)
-  • Formato: CHARACTER → OBJECT
-
-- **RESIDENCE** (Moradia): mora em, reside em, habita
-  • Strength: 6-9 (importância do local)
-  • Formato: CHARACTER → LOCATION
-
-- **MEMBERSHIP** (Membro de): é membro, pertence a, integra
-  • Strength: 7-10 (afiliações organizacionais)
-  • Formato: CHARACTER → FACTION
-
-- **PARTICIPATION** (Participou de): esteve presente, participou, lutou em
-  • Strength: 5-9 (varia conforme protagonismo)
-  • Formato: CHARACTER → EVENT
-
-💭 **RELAÇÕES CONCEITUAIS**:
-- **BELIEF** (Acredita em): segue, pratica, acredita em
-  • Strength: 6-10 (varia conforme convicção)  
-  • Formato: CHARACTER → CONCEPT
-
-- **AFFILIATION** (Afiliação geral): associado com, conectado a
-  • Strength: 4-7 (conexões menos específicas)
-  • Formato: Qualquer → Qualquer (USE COM MODERAÇÃO - prefira tipos específicos)
-
-**REGRAS PARA RELACIONAMENTOS:**
-✅ SEMPRE especifique nomes EXATOS das entidades (fromEntityName, toEntityName)
-✅ SEMPRE escolha o tipo mais ESPECÍFICO (FRIENDSHIP em vez de AFFILIATION)
-✅ SEMPRE adicione descrição explicando o contexto
-✅ Strength: 9-10 (crítico), 7-8 (muito importante), 5-6 (moderado), 3-4 (secundário), 1-2 (passageiro)
-✅ RESPEITE os formatos (ex: OWNERSHIP só CHARACTER → OBJECT)
-✅ Extraia relacionamentos implícitos (se A mora em B, crie RESIDENCE)
-
-**EXEMPLO DE EXTRAÇÃO COMPLETA:**
-
-Para um personagem "Klaus Von Mittelsen":
-{
-  "type": "CHARACTER",
-  "name": "Klaus Von Mittelsen",
-  "description": "Patriarca da Casa Von Mittelsen, ex-oficial da SS durante a Segunda Guerra Mundial. Homem de aparência imponente, com cabelos grisalhos e olhos penetrantes de cor azul-aço. Possui uma cicatriz discreta na têmpora esquerda, lembrança de seu passado militar. Personalidade calculista e estratégica, esconde profundos segredos sobre suas ações durante a guerra. Atualmente reside na Biblioteca de Memórias, onde preserva registros históricos controversos.",
-  "attributes": {
-    "idade": "79 anos",
-    "origem": "Alemanha",
-    "profissão": "Ex-Oficial Militar / Patriarca",
-    "aparência": "Cabelos grisalhos, olhos azuis, cicatriz na têmpora",
-    "personalidade": "Calculista, estratégico, reservado",
-    "habilidades": "Liderança, estratégia militar, conhecimento histórico"
-  },
-  "importance": 10,
-  "aliases": ["O Patriarca", "Klaus", "Von Mittelsen"]
-}
-
-FORMATO DE RESPOSTA (APENAS JSON PURO):
+**FORMATO JSON (APENAS JSON, SEM COMENTÁRIOS):**
 {
   "entities": [
     {
-      "type": "CHARACTER" | "LOCATION" | "FACTION" | "EVENT" | "OBJECT" | "CONCEPT" | "DECISION" | "RELATIONSHIP" | "OTHER",
-      "name": "Nome Completo da Entidade",
-      "description": "Descrição DETALHADA com 3-5 frases para principais, 2-3 para secundários",
+      "type": "CHARACTER|LOCATION|OBJECT|EVENT|CONCEPT|FACTION|DECISION",
+      "name": "Nome Completo",
+      "description": "Descrição detalhada com 3-5 frases...",
       "attributes": {
-        "atributo1": "valor",
-        "atributo2": "valor",
-        "todoOsAtributosMencionados": "valor"
+        "chave": "valor"
       },
       "importance": 1-10,
-      "aliases": ["TodosOsNomesAlternativos", "Apelidos", "Títulos"]
+      "aliases": ["Apelido1", "Título1"]
     }
   ],
   "relationships": [
     {
-      "fromEntityName": "Nome EXATO da Entidade Origem",
-      "toEntityName": "Nome EXATO da Entidade Destino",
-      "type": "FAMILY" | "FRIENDSHIP" | "ROMANCE" | "RIVALRY" | "MENTORSHIP" | "HIERARCHY" | "ALLIANCE" | "ENEMY" | "OWNERSHIP" | "RESIDENCE" | "MEMBERSHIP" | "PARTICIPATION" | "BELIEF" | "AFFILIATION",
-      "description": "Explicação clara da relação",
+      "fromEntityName": "Nome Exato",
+      "toEntityName": "Nome Exato",
+      "type": "FAMILY|FRIENDSHIP|ROMANCE|RIVALRY|MENTORSHIP|HIERARCHY|ALLIANCE|ENEMY|OWNERSHIP|RESIDENCE|MEMBERSHIP|PARTICIPATION|BELIEF|AFFILIATION",
+      "description": "Descrição da relação",
       "strength": 1-10
     }
   ]
 }
 
-🎯 LEMBRE-SE: Este é um DOSSIÊ COMPLETO. Pode ter dezenas ou até centenas de entidades. EXTRAIA TUDO!
+🎯 LEMBRE-SE: Extraia TUDO deste trecho. Não omita nada.
 `;
 
-      // Usar Gemini 2.0 Flash para processar grandes volumes rapidamente
-      const model = this.genAI.getGenerativeModel({
-        model: "gemini-2.0-flash-exp",
-        generationConfig: {
-          responseMimeType: "application/json",
-        },
-      });
+        // Usar Gemini 2.0 Flash
+        const model = this.genAI.getGenerativeModel({
+          model: "gemini-2.0-flash-exp",
+          generationConfig: {
+            responseMimeType: "application/json",
+          },
+        });
 
-      const result = await model.generateContent(prompt);
-      const responseText = result.response.text();
+        const result = await model.generateContent(prompt);
+        const responseText = result.response.text();
+        const cleaned = this.cleanJsonResponse(responseText);
+        const parsed: ExtractionResult = JSON.parse(cleaned);
 
-      return JSON.parse(responseText) as ExtractionResult;
-    } catch (error) {
-      logger.error(
-        { error, textPreview: text.substring(0, 100) },
-        "Erro ao extrair do dossiê com IA",
-      );
-      // Fallback: retornar vazio ou tentar parser manual (será tratado no caller)
-      return { entities: [], relationships: [] };
+        // Merge results
+        if (parsed.entities) {
+          for (const entity of parsed.entities) {
+            combinedResult.entities.push(entity);
+            extractedNames.add(entity.name);
+          }
+        }
+        if (parsed.relationships) {
+          combinedResult.relationships.push(...parsed.relationships);
+        }
+      } catch (error) {
+        logger.error(
+          { error, chunkIndex: index },
+          "Erro ao extrair chunk do dossiê com IA",
+        );
+      }
     }
+
+    if (chunks.length > 1) {
+      logger.info(
+        {
+          totalEntities: combinedResult.entities.length,
+          uniqueNames: extractedNames.size,
+        },
+        "✅ Extração em chunks concluída",
+      );
+    }
+
+    return combinedResult;
+  }
+
+  /**
+   * Divide o texto em chunks respeitando quebras de parágrafo
+   */
+  private splitTextIntoChunks(text: string, maxChunkSize: number): string[] {
+    if (text.length <= maxChunkSize) {
+      return [text];
+    }
+
+    const chunks: string[] = [];
+    let currentChunk = "";
+
+    // Tenta dividir por parágrafos duplos primeiro
+    const paragraphs = text.split(/\n\s*\n/);
+
+    for (const paragraph of paragraphs) {
+      // Se o parágrafo sozinho é maior que o chunk (caso raro mas possível),
+      // divide por sentenças ou arbitrariamente
+      if (paragraph.length > maxChunkSize) {
+        // Se já tinha algo no buffer, salva
+        if (currentChunk) {
+          chunks.push(currentChunk);
+          currentChunk = "";
+        }
+
+        // Divide o parágrafo gigante
+        let remaining = paragraph;
+        while (remaining.length > 0) {
+          const take = Math.min(remaining.length, maxChunkSize);
+          chunks.push(remaining.substring(0, take));
+          remaining = remaining.substring(take);
+        }
+        continue;
+      }
+
+      // Se adicionar o próximo parágrafo estoura o limite, salva o chunk atual
+      if (currentChunk.length + paragraph.length + 2 > maxChunkSize) {
+        chunks.push(currentChunk);
+        currentChunk = paragraph;
+      } else {
+        if (currentChunk) {
+          currentChunk += `\n\n${paragraph}`;
+        } else {
+          currentChunk = paragraph;
+        }
+      }
+    }
+
+    if (currentChunk) {
+      chunks.push(currentChunk);
+    }
+
+    return chunks;
   }
 
   /**

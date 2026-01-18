@@ -212,18 +212,26 @@ export async function updateStoryPrompt(data: {
 
         // Fallback Inteligente: Se o parsing manual não encontrou estrutura clara
         // ou retornou resultados vazios para um texto denso, usar a IA.
-        // Critério: Sem headers Markdown (#) e texto longo, ou 0 entidades.
+        // NOVO: Textos muito grandes SEMPRE usam IA (têm chunking)
         const hasMarkdownHeaders = /^\s*#{1,6}\s+/m.test(
           data.knowledgeBaseInput,
         );
         const isLongText = data.knowledgeBaseInput.length > 100;
+        const isVeryLongText = data.knowledgeBaseInput.length > 50000; // 50k+
 
         if (
+          isVeryLongText ||
           parsed.entities.length === 0 ||
           (!hasMarkdownHeaders && isLongText)
         ) {
           logger.info(
-            "Parsing manual insuficiente ou texto não estruturado. Usando IA para extração do dossiê.",
+            {
+              reason: isVeryLongText
+                ? "Texto muito grande (>50k) - usando IA com chunking"
+                : "Parsing manual insuficiente ou texto não estruturado",
+              textLength: data.knowledgeBaseInput.length,
+            },
+            "Usando IA para extração do dossiê.",
           );
           try {
             const extractor = new KnowledgeExtractor();
