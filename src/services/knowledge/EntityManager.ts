@@ -66,7 +66,7 @@ export class EntityManager {
   }
 
   /**
-   * Processa uma entidade individual
+   * Processa uma entidade individual com matching inteligente
    */
   private async processEntity(
     storyId: string,
@@ -78,32 +78,233 @@ export class EntityManager {
       "🔍 Processando entidade...",
     );
 
-    // Normalizar nome para busca
-    const _normalizedName = this.normalizeName(entity.name);
+    // CAMADA 1: Busca exata (rápida)
+    const exactMatch = await this.findExactMatch(storyId, entity);
+    if (exactMatch) {
+      logger.info(
+        { entityName: entity.name, matchedWith: exactMatch.name },
+        "✅ Match exato encontrado",
+      );
+      return await this.updateEntity(exactMatch.id, entity, messageId);
+    }
 
-    // Buscar entidade existente
-    const existing = await prismaClient.storyEntity.findFirst({
+    // CAMADA 2: Busca parcial (média velocidade)
+    const partialMatch = await this.findPartialMatch(storyId, entity);
+    if (partialMatch) {
+      logger.info(
+        {
+          entityName: entity.name,
+          matchedWith: partialMatch.name,
+          reason: "partial_match",
+        },
+        "🔍 Match parcial encontrado",
+      );
+      return await this.updateEntity(partialMatch.id, entity, messageId);
+    }
+
+    // CAMADA 3: Busca por similaridade (lenta, último recurso)
+    const similarMatch = await this.findSimilarMatch(storyId, entity);
+    if (similarMatch) {
+      logger.info(
+        {
+          entityName: entity.name,
+          matchedWith: similarMatch.name,
+          reason: "fuzzy_match",
+        },
+        "🎯 Match por similaridade encontrado",
+      );
+      return await this.updateEntity(similarMatch.id, entity, messageId);
+    }
+
+    // Nenhum match - criar nova entidade
+    logger.info(
+      { entityName: entity.name },
+      "✨ Nenhuma correspondência encontrada. Criando nova entidade.",
+    );
+    await this.createEntity(storyId, entity, messageId);
+    return "created";
+  }
+
+  /**
+   * CAMADA 1: Busca exata por nome ou aliases
+   */
+  private async findExactMatch(
+    storyId: string,
+    entity: ExtractedEntity,
+  ): Promise<{ id: number; name: string } | null> {
+    const result = await prismaClient.storyEntity.findFirst({
       where: {
         storyId,
+        type: entity.type, // Mesmo tipo
         OR: [
           { name: { equals: entity.name, mode: "insensitive" } },
           { aliases: { hasSome: [entity.name, ...(entity.aliases || [])] } },
         ],
       },
+      select: { id: true, name: true },
     });
 
-    if (existing) {
-      // Atualizar entidade existente
-      return await this.updateEntity(existing.id, entity, messageId);
-    } else {
-      // Criar nova entidade
-      logger.info(
-        { entityName: entity.name },
-        "✨ Nenhuma correspondência encontrada. Criando nova entidade.",
-      );
-      await this.createEntity(storyId, entity, messageId);
-      return "created";
+    return result;
+  }
+
+  /**
+   * CAMADA 2: Busca parcial (substring)
+   */
+  private async findPartialMatch(
+    storyId: string,
+    entity: ExtractedEntity,
+  ): Promise<{ id: number; name: string } | null> {
+    // Buscar todas entidades do mesmo tipo
+    const candidates = await prismaClient.storyEntity.findMany({
+      where: {
+        storyId,
+        type: entity.type,
+      },
+      select: { id: true, name: true, aliases: true },
+    });
+
+    const normalized = this.normalizeForMatching(entity.name);
+
+    for (const candidate of candidates) {
+      const candidateNorm = this.normalizeForMatching(candidate.name);
+
+      // Verificar se um nome contém o outro
+      if (this.isPartialMatch(normalized, candidateNorm)) {
+        return { id: candidate.id, name: candidate.name };
+      }
+
+      // Verificar aliases também
+      for (const alias of candidate.aliases) {
+        const aliasNorm = this.normalizeForMatching(alias);
+        if (this.isPartialMatch(normalized, aliasNorm)) {
+          return { id: candidate.id, name: candidate.name };
+        }
+      }
     }
+
+    return null;
+  }
+
+  /**
+   * CAMADA 3: Busca por similaridade (fuzzy matching)
+   */
+  private async findSimilarMatch(
+    storyId: string,
+    entity: ExtractedEntity,
+  ): Promise<{ id: number; name: string } | null> {
+    // Buscar todas entidades do mesmo tipo
+    const candidates = await prismaClient.storyEntity.findMany({
+      where: {
+        storyId,
+        type: entity.type,
+      },
+      select: { id: true, name: true },
+    });
+
+    const SIMILARITY_THRESHOLD = 0.8; // 80% de similaridade
+    let bestMatch: { id: number; name: string; similarity: number } | null =
+      null;
+
+    for (const candidate of candidates) {
+      const similarity = this.calculateSimilarity(entity.name, candidate.name);
+
+      if (
+        similarity >= SIMILARITY_THRESHOLD &&
+        (bestMatch === null || similarity > bestMatch.similarity)
+      ) {
+        bestMatch = { ...candidate, similarity };
+      }
+    }
+
+    if (bestMatch) {
+      logger.info(
+        {
+          entityName: entity.name,
+          matchedWith: bestMatch.name,
+          similarity: bestMatch.similarity,
+        },
+        "Fuzzy match encontrado",
+      );
+    }
+
+    return bestMatch ? { id: bestMatch.id, name: bestMatch.name } : null;
+  }
+
+  /**
+   * Normalização avançada para matching
+   */
+  private normalizeForMatching(text: string): string {
+    return (
+      text
+        .toLowerCase()
+        .trim()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "") // Remove acentos
+        // eslint-disable-next-line no-useless-escape
+        .replace(/[^\w\s]/g, " ") // Remove pontuação
+        .replace(/\s+/g, " ") // Normaliza espaços
+    );
+  }
+
+  /**
+   * Verifica se há matching parcial entre dois nomes
+   */
+  private isPartialMatch(norm1: string, norm2: string): boolean {
+    // Se um nome contém o outro completamente
+    if (norm1.includes(norm2) || norm2.includes(norm1)) {
+      // Mas não se a diferença for muito grande (evita falsos positivos)
+      const ratio =
+        Math.min(norm1.length, norm2.length) /
+        Math.max(norm1.length, norm2.length);
+      return ratio > 0.5; // Pelo menos 50% do tamanho
+    }
+
+    return false;
+  }
+
+  /**
+   * Calcula similaridade entre duas strings usando Levenshtein distance
+   */
+  private calculateSimilarity(str1: string, str2: string): number {
+    const norm1 = this.normalizeForMatching(str1);
+    const norm2 = this.normalizeForMatching(str2);
+
+    const distance = this.levenshteinDistance(norm1, norm2);
+    const maxLen = Math.max(norm1.length, norm2.length);
+
+    return 1 - distance / maxLen; // 0-1, onde 1 = idêntico
+  }
+
+  /**
+   * Algoritmo de Levenshtein distance
+   */
+  private levenshteinDistance(str1: string, str2: string): number {
+    const matrix: number[][] = [];
+
+    // Inicializar matriz
+    for (let i = 0; i <= str2.length; i++) {
+      matrix[i] = [i];
+    }
+    for (let j = 0; j <= str1.length; j++) {
+      matrix[0]![j] = j;
+    }
+
+    // Preencher matriz
+    for (let i = 1; i <= str2.length; i++) {
+      for (let j = 1; j <= str1.length; j++) {
+        if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+          matrix[i]![j] = matrix[i - 1]![j - 1]!;
+        } else {
+          matrix[i]![j] = Math.min(
+            matrix[i - 1]![j - 1]! + 1, // substituição
+            matrix[i]![j - 1]! + 1, // inserção
+            matrix[i - 1]![j]! + 1, // deleção
+          );
+        }
+      }
+    }
+
+    return matrix[str2.length]![str1.length]!;
   }
 
   /**
@@ -158,7 +359,7 @@ export class EntityManager {
               : "Entidade criada manualmente via KB Import",
             createdBy: messageId
               ? ("AI" as EntitySource)
-              : ("MANUAL" as EntitySource),
+              : ("SYSTEM" as EntitySource),
             ...(messageId && { messageId }),
           },
         },
@@ -251,7 +452,7 @@ export class EntityManager {
         changeNote: extracted.changes || "Atualização automática",
         createdBy: messageId
           ? ("AI" as EntitySource)
-          : ("MANUAL" as EntitySource),
+          : ("SYSTEM" as EntitySource),
         ...(messageId && { messageId }),
       },
     });
@@ -299,17 +500,5 @@ export class EntityManager {
     );
 
     return "updated";
-  }
-
-  /**
-   * Normaliza nome para comparação
-   */
-  private normalizeName(name: string): string {
-    return name
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, " ")
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");
   }
 }

@@ -218,8 +218,20 @@ export async function POST(
       "Criando modelo Gemini com safety settings",
     );
 
+    const selectedModel = isInPauseMode
+      ? CHAT_CONFIG.ai.pauseModel
+      : CHAT_CONFIG.ai.model;
+
+    logger.info(
+      {
+        model: selectedModel,
+        mode: isInPauseMode ? "PAUSE (Economical)" : "NARRATIVE (Premium)",
+      },
+      "Selecionando modelo de IA",
+    );
+
     const model = genAI.getGenerativeModel({
-      model: CHAT_CONFIG.ai.model,
+      model: selectedModel,
       safetySettings: CHAT_CONFIG.ai.safetySettings,
     });
 

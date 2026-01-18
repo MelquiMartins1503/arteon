@@ -48,6 +48,11 @@ export const CHAT_CONFIG = {
      */
     model: "gemini-2.5-pro",
 
+    /**
+     * Modelo mais econômico para modo pausa
+     */
+    pauseModel: "gemini-2.0-flash-exp",
+
     /** Temperatura para geração de texto */
     temperature: 0.7,
 

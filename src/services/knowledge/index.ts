@@ -8,4 +8,5 @@ export type {
   ExtractionResult,
 } from "./KnowledgeExtractor";
 export { KnowledgeExtractor } from "./KnowledgeExtractor";
+export { KnowledgeRebuilder } from "./KnowledgeRebuilder";
 export { RelationshipManager } from "./RelationshipManager";
