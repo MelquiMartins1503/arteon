@@ -189,98 +189,197 @@ export class KnowledgeExtractor {
     try {
       const prompt = `
 Você é um especialista em estruturar lore e worldbuilding.
-Sua tarefa é ler o texto abaixo (que pode ser um dossiê, anotações ou wiki) e extrair TODAS as entidades e relacionamentos importantes para popular um banco de dados de Knowledge Base.
+
+🎯 MISSÃO CRÍTICA: EXTRAIA ABSOLUTAMENTE TUDO deste dossiê. Seja ABUNDANTE, não minimalista.
+Prefira extrair DEMAIS do que de menos. Este é um documento completo de worldbuilding.
 
 TEXTO DO DOSSIÊ:
 """
 ${text}
 """
 
-**TIPOS DE ENTIDADES - GUIA COMPLETO:**
+⚠️ REGRAS DE COMPLETUDE:
+✅ Extraia TODAS as entidades mencionadas, mesmo que brevemente
+✅ Descrições: Mínimo 3-5 frases para entidades principais, 2-3 para secundárias
+✅ Atributos: Capture TODOS os detalhes mencionados (idade, aparência, classe, poderes, origem, etc)
+✅ Aliases: Todos os nomes alternativos, apelidos, títulos
+✅ Relacionamentos: Identifique TODOS, mesmo os implícitos
+❌ NÃO omita informações por considerá-las "menores"
+❌ NÃO resuma excessivamente - seja detalhado
 
-USE TODOS OS TIPOS APROPRIADAMENTE. Este é um dossiê completo, então você deve extrair MUITO mais entidades do que em uma conversa normal.
+**TIPOS DE ENTIDADES:**
 
 1. **CHARACTER** (Personagem)
    • O QUE: Qualquer pessoa, ser consciente com nome próprio
    • EXEMPLOS: "Klaus Von Mittelsen", "O Narrador", "Dr. Silva", "Anneliese"
+   • DESCRIÇÃO: Inclua aparência, personalidade, história, motivações, poderes (se houver)
+   • ATTRIBUTES: idade, classe, profissão, habilidades, aparência física
    • NÃO USE PARA: Grupos de pessoas (use FACTION)
 
 2. **LOCATION** (Local)
    • O QUE: Lugares físicos específicos com nome próprio
-   • EXEMPLOS: "Biblioteca de Memórias", "São Paulo", "Mansão Valendorf"
+   • EXEMPLOS: "Biblioteca de Memórias", "São Paulo", "Mansão Valendorf", "Sala Secreta"
+   • DESCRIÇÃO: Inclua aparência, atmosfera, história, importância
+   • ATTRIBUTES: tamanho, tipo, região, características especiais
    • NÃO USE PARA: Conceitos espaciais abstratos (use CONCEPT)
 
 3. **OBJECT** (Objeto)
    • O QUE: Itens físicos importantes, artefatos nomeados
    • EXEMPLOS: "Espada Flamejante", "Diário de Klaus", "Anel de Safira"
+   • DESCRIÇÃO: Aparência, poderes/propriedades, história, significado
+   • ATTRIBUTES: material, poderes, origem, condição
 
 4. **EVENT** (Evento)
    • O QUE: Acontecimentos significativos nomeados ou datados
    • EXEMPLOS: "Batalha de 1964", "Primeiro Encontro", "Golpe Militar"
+   • DESCRIÇÃO: O que aconteceu, quando, onde, quem participou, consequências
+   • ATTRIBUTES: data, local, participantes, resultado
 
 5. **CONCEPT** (Conceito)
-   • O QUE: Sistemas, leis, magias, tecnologias, filosofias explicadas
+   • O QUE: Sistemas, leis, magias, tecnologias, filosofias, ideologias
    • EXEMPLOS: "Sistema de Magia Rúnica", "Darwinismo Social", "Protocolo Narrativo"
+   • DESCRIÇÃO: Como funciona, regras, origem, importância
+   • ATTRIBUTES: tipo, regras, limitações
 
 6. **FACTION** (Facção/Organização)
    • O QUE: Grupos, organizações, ordens, famílias, casas nobres
-   • EXEMPLOS: "Casa Von Mittelsen", "SS", "Guilda dos Mercadores"
+   • EXEMPLOS: "Casa Von Mittelsen", "SS", "Guilda dos Mercadores", "Conselho dos Anciões"
+   • DESCRIÇÃO: Propósito, história, estrutura, influência, membros notáveis
+   • ATTRIBUTES: tipo, liderança, tamanho, influência
    • NÃO USE PARA: Pessoas individuais
 
 7. **DECISION** (Decisão)
-   • O QUE: Escolhas importantes mencionadas que impactaram a história
-   • EXEMPLOS: "Decisão de Klaus de esconder sua verdadeira identidade"
-   • USE COM MODERAÇÃO: Apenas para decisões realmente cruciais documentadas
+   • O QUE: Escolhas importantes que impactaram significativamente a trama
+   • EXEMPLOS: "Decisão de Klaus de revelar seu passado", "Escolha de abandonar a família"
+   • USE COM MODERAÇÃO: Apenas decisões cruciais e bem documentadas
 
-8. **RELATIONSHIP** (Relacionamento)
+8. **RELATIONSHIP** (Relacionamento como conceito)
    • RARAMENTE NECESSÁRIO: Use o campo relationships ao invés
-   • QUANDO USAR: Apenas se o relacionamento for um conceito nomeado importante
+   • QUANDO USAR: Apenas se o relacionamento for um conceito nomeado
    • EXEMPLO: "O Pacto de Sangue entre as Casas"
 
 9. **OTHER** (Outro)
    • ÚLTIMO RECURSO: Use apenas se não se encaixar em nenhuma categoria acima
 
-**ÁRVORE DE DECISÃO:**
-┌─ É uma pessoa individual? → CHARACTER
-├─ É um grupo/família/organização? → FACTION
-├─ É um lugar físico? → LOCATION
-├─ É um objeto físico? → OBJECT
-├─ É um acontecimento histórico? → EVENT
-├─ É uma escolha crucial documentada? → DECISION
-├─ É um sistema/lei/filosofia abstrata? → CONCEPT
-└─ Não encaixa em nada? → OTHER (último recurso)
+**RELACIONAMENTOS - GUIA COMPLETO:**
 
-INSTRUÇÕES:
-1. Como é um dossiê, extraia TUDO - seja abundante, não minimalista
-2. Identifique Personagens, Locais, Facções, Eventos, Objetos e Conceitos
-3. Extraia descrições ricas e detalhadas, não apenas resumos
-4. Se houver listas de atributos (idade, classe, etc), inclua no campo 'attributes'
-5. Identifique TODOS os relacionamentos mencionados (pai/filho, rival, aliado, localizado em, membro de)
-6. Importance: 10 para protagonistas/locais principais, 7-9 para secundários importantes, 4-6 para moderados, 1-3 para passagens
-7. O resultado deve ser JSON puro
+Identifique TODOS os relacionamentos explícitos e implícitos. Seja exaustivo.
 
-FORMATO DE RESPOSTA (JSON):
+📌 **RELAÇÕES PESSOAIS** (entre CHARACTERs):
+- **FAMILY** (Família): pai, mãe, irmão, filho, cônjuge, parente
+  • Strength: 8-10 (laços familiares são fortes)
+  • Formato: CHARACTER → CHARACTER
+
+- **FRIENDSHIP** (Amizade): amigos, aliados próximos, companheiros
+  • Strength: 5-9 (varia conforme proximidade)
+  • Formato: CHARACTER → CHARACTER
+
+- **ROMANCE** (Romance/Amor): relacionamento amoroso, paixão, interesse romântico
+  • Strength: 7-10 (relações amorosas são intensas)
+  • Formato: CHARACTER → CHARACTER
+
+- **RIVALRY** (Rivalidade): rivais, competidores, antagonismo
+  • Strength: 5-9 (varia conforme intensidade)
+  • Formato: CHARACTER → CHARACTER
+
+- **MENTORSHIP** (Mentor/Aprendiz): mestre e estudante, tutor e pupilo
+  • Strength: 6-9 (relação de ensino/aprendizado)
+  • Formato: CHARACTER (mentor) → CHARACTER (aprendiz)
+
+🏛️ **RELAÇÕES ORGANIZACIONAIS**:
+- **HIERARCHY** (Superior/Subordinado): comando, liderança, autoridade
+  • Strength: 7-10 (relações de poder)
+  • Formato: CHARACTER (superior) → CHARACTER (subordinado)
+
+- **ALLIANCE** (Aliança): alianças políticas, parcerias, coalizões
+  • Strength: 5-9 (varia conforme confiança)
+  • Formato: FACTION → FACTION ou CHARACTER → CHARACTER
+
+- **ENEMY** (Inimizade): inimigos declarados, oposição, hostilidade
+  • Strength: 7-10 (inimizades são intensas)
+  • Formato: CHARACTER → CHARACTER ou FACTION → FACTION
+
+🔗 **RELAÇÕES CONTEXTUAIS** (entidade com mundo):
+- **OWNERSHIP** (Posse): possui, é dono de
+  • Strength: 5-8 (varia conforme valor)
+  • Formato: CHARACTER → OBJECT
+
+- **RESIDENCE** (Moradia): mora em, reside em, habita
+  • Strength: 6-9 (importância do local)
+  • Formato: CHARACTER → LOCATION
+
+- **MEMBERSHIP** (Membro de): é membro, pertence a, integra
+  • Strength: 7-10 (afiliações organizacionais)
+  • Formato: CHARACTER → FACTION
+
+- **PARTICIPATION** (Participou de): esteve presente, participou, lutou em
+  • Strength: 5-9 (varia conforme protagonismo)
+  • Formato: CHARACTER → EVENT
+
+💭 **RELAÇÕES CONCEITUAIS**:
+- **BELIEF** (Acredita em): segue, pratica, acredita em
+  • Strength: 6-10 (varia conforme convicção)  
+  • Formato: CHARACTER → CONCEPT
+
+- **AFFILIATION** (Afiliação geral): associado com, conectado a
+  • Strength: 4-7 (conexões menos específicas)
+  • Formato: Qualquer → Qualquer (USE COM MODERAÇÃO - prefira tipos específicos)
+
+**REGRAS PARA RELACIONAMENTOS:**
+✅ SEMPRE especifique nomes EXATOS das entidades (fromEntityName, toEntityName)
+✅ SEMPRE escolha o tipo mais ESPECÍFICO (FRIENDSHIP em vez de AFFILIATION)
+✅ SEMPRE adicione descrição explicando o contexto
+✅ Strength: 9-10 (crítico), 7-8 (muito importante), 5-6 (moderado), 3-4 (secundário), 1-2 (passageiro)
+✅ RESPEITE os formatos (ex: OWNERSHIP só CHARACTER → OBJECT)
+✅ Extraia relacionamentos implícitos (se A mora em B, crie RESIDENCE)
+
+**EXEMPLO DE EXTRAÇÃO COMPLETA:**
+
+Para um personagem "Klaus Von Mittelsen":
+{
+  "type": "CHARACTER",
+  "name": "Klaus Von Mittelsen",
+  "description": "Patriarca da Casa Von Mittelsen, ex-oficial da SS durante a Segunda Guerra Mundial. Homem de aparência imponente, com cabelos grisalhos e olhos penetrantes de cor azul-aço. Possui uma cicatriz discreta na têmpora esquerda, lembrança de seu passado militar. Personalidade calculista e estratégica, esconde profundos segredos sobre suas ações durante a guerra. Atualmente reside na Biblioteca de Memórias, onde preserva registros históricos controversos.",
+  "attributes": {
+    "idade": "79 anos",
+    "origem": "Alemanha",
+    "profissão": "Ex-Oficial Militar / Patriarca",
+    "aparência": "Cabelos grisalhos, olhos azuis, cicatriz na têmpora",
+    "personalidade": "Calculista, estratégico, reservado",
+    "habilidades": "Liderança, estratégia militar, conhecimento histórico"
+  },
+  "importance": 10,
+  "aliases": ["O Patriarca", "Klaus", "Von Mittelsen"]
+}
+
+FORMATO DE RESPOSTA (APENAS JSON PURO):
 {
   "entities": [
     {
       "type": "CHARACTER" | "LOCATION" | "FACTION" | "EVENT" | "OBJECT" | "CONCEPT" | "DECISION" | "RELATIONSHIP" | "OTHER",
-      "name": "Nome da Entidade",
-      "description": "Descrição detalhada...",
-      "attributes": { "key": "value" },
+      "name": "Nome Completo da Entidade",
+      "description": "Descrição DETALHADA com 3-5 frases para principais, 2-3 para secundários",
+      "attributes": {
+        "atributo1": "valor",
+        "atributo2": "valor",
+        "todoOsAtributosMencionados": "valor"
+      },
       "importance": 1-10,
-      "aliases": ["Apelido1", "Outro Nome"]
+      "aliases": ["TodosOsNomesAlternativos", "Apelidos", "Títulos"]
     }
   ],
   "relationships": [
     {
-      "fromEntityName": "Nome Origem",
-      "toEntityName": "Nome Destino",
-      "type": "FAMILY" | "ALLY" | "RIVAL" | "MEMBER" | "LOCATED" | "RELATED",
-      "description": "Explicação breve da relação",
+      "fromEntityName": "Nome EXATO da Entidade Origem",
+      "toEntityName": "Nome EXATO da Entidade Destino",
+      "type": "FAMILY" | "FRIENDSHIP" | "ROMANCE" | "RIVALRY" | "MENTORSHIP" | "HIERARCHY" | "ALLIANCE" | "ENEMY" | "OWNERSHIP" | "RESIDENCE" | "MEMBERSHIP" | "PARTICIPATION" | "BELIEF" | "AFFILIATION",
+      "description": "Explicação clara da relação",
       "strength": 1-10
     }
   ]
 }
+
+🎯 LEMBRE-SE: Este é um DOSSIÊ COMPLETO. Pode ter dezenas ou até centenas de entidades. EXTRAIA TUDO!
 `;
 
       // Usar Gemini 2.0 Flash para processar grandes volumes rapidamente

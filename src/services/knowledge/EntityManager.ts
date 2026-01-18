@@ -158,7 +158,7 @@ export class EntityManager {
               : "Entidade criada manualmente via KB Import",
             createdBy: messageId
               ? ("AI" as EntitySource)
-              : ("USER" as EntitySource),
+              : ("MANUAL" as EntitySource),
             ...(messageId && { messageId }),
           },
         },
@@ -251,7 +251,7 @@ export class EntityManager {
         changeNote: extracted.changes || "Atualização automática",
         createdBy: messageId
           ? ("AI" as EntitySource)
-          : ("USER" as EntitySource),
+          : ("MANUAL" as EntitySource),
         ...(messageId && { messageId }),
       },
     });
