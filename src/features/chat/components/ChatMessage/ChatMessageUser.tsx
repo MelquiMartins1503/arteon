@@ -37,7 +37,7 @@ export const ChatMessageUser = ({
 
       <ChatMessageActions
         content={content}
-        className="opacity-0 transition-opacity group-hover:opacity-100"
+        className="max-md:opacity-100 opacity-0 transition-opacity group-hover:opacity-100"
       />
     </Box>
   );
