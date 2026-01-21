@@ -3,6 +3,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { CHAT_CONFIG } from "@/config/chat.config";
 import {
   buildInitialChatSystemPrompt,
+  buildPauseModeOverrideMessage,
   IDEALIZATION_END_MESSAGE_MODEL,
   IDEALIZATION_END_MESSAGE_USER,
 } from "@/features/story/prompts/chat";
@@ -288,9 +289,17 @@ export async function POST(
     // Injetar prompt inicial do sistema (após KB, antes do histórico)
     const initialSystemPrompt = buildInitialChatSystemPrompt(
       conversationHistoryWithMessages.customPrompt,
+      isInPauseMode, // Passar modo pausa para incluir aviso se necessário
     );
 
-    const fullHistory = [...initialSystemPrompt, ...history];
+    let fullHistory = [...initialSystemPrompt, ...history];
+
+    // Injetar override de modo pausa (após histórico) quando aplicável
+    if (isInPauseMode && rawCommand === "GENERAL") {
+      const pauseOverride = buildPauseModeOverrideMessage();
+      fullHistory = [...fullHistory, ...pauseOverride];
+      logger.info("Injetando mensagem de override de modo pausa no contexto");
+    }
 
     const chat = model.startChat({
       history: fullHistory,

@@ -4,7 +4,10 @@ import { NARRATIVE_BRIEFING } from "./narrativeBriefing";
  * Constrói a mensagem inicial do sistema para a fase de Criação da História/Chat.
  * Insere o Briefing Narrativo completo e estabelece o papel da IA.
  */
-export function buildInitialChatSystemPrompt(customPrompt?: string | null) {
+export function buildInitialChatSystemPrompt(
+  customPrompt?: string | null,
+  isInPauseMode?: boolean,
+) {
   // Construir o prompt base com o NARRATIVE_BRIEFING
   let systemPromptText = `
               Você é um assistente de IA profissional em coautoria de histórias, atuando em conjunto com o usuário.
@@ -17,6 +20,23 @@ export function buildInitialChatSystemPrompt(customPrompt?: string | null) {
   // Se há um customPrompt, concatená-lo ao final
   if (customPrompt) {
     systemPromptText += `\n\n## Instruções Adicionais Personalizadas\n\n${customPrompt}`;
+  }
+
+  // Se está em modo pausa, adicionar aviso explícito
+  if (isInPauseMode) {
+    systemPromptText += `
+
+## ⚠️ MODO PAUSA ATIVO
+
+Você está atualmente em MODO PAUSA NARRATIVA. Suas instruções são:
+
+1. **NÃO desenvolva novas seções narrativas**
+2. **NÃO escreva conteúdo literário completo**
+3. **Apenas responda perguntas do usuário de forma concisa e direta**
+4. **Discuta estratégias e planejamento quando solicitado**
+5. **Seja conciso e objetivo nas respostas**
+
+As instruções do Briefing Narrativo acima são para referência, mas NÃO devem ser aplicadas até que o usuário saia do modo pausa com [RETOMAR NARRATIVA].`;
   }
 
   return [
@@ -207,4 +227,29 @@ export function buildSuggestedPromptsPrompt(
      Histórico recente: ${JSON.stringify(history.slice(-3))}
      Texto para analisar (foco principal): "${lastResponse.substring(0, 1000)}"
   `;
+}
+
+/**
+ * Constrói a mensagem de override para modo pausa.
+ * Esta mensagem é injetada após o histórico para reforçar que a IA não deve desenvolver conteúdo narrativo.
+ */
+export function buildPauseModeOverrideMessage() {
+  return [
+    {
+      role: "user" as const,
+      parts: [
+        {
+          text: "Lembrete: estamos em modo pausa.",
+        },
+      ],
+    },
+    {
+      role: "model" as const,
+      parts: [
+        {
+          text: "Entendido. Estou em MODO PAUSA. Não vou desenvolver novas seções narrativas. Apenas responderei suas perguntas de forma concisa e direta.",
+        },
+      ],
+    },
+  ];
 }
