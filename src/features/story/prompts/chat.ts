@@ -8,35 +8,70 @@ export function buildInitialChatSystemPrompt(
   customPrompt?: string | null,
   isInPauseMode?: boolean,
 ) {
-  // Construir o prompt base com o NARRATIVE_BRIEFING
-  let systemPromptText = `
-              Você é um assistente de IA profissional em coautoria de histórias, atuando em conjunto com o usuário.
+  let systemPromptText: string;
+  let modelResponseText: string;
 
-              Sua função é auxiliar na criação, desenvolvimento e expansão narrativa de forma criativa, coerente e original, 
-              sempre respeitando integralmente o Briefing Narrativo Neutro e Atemporal abaixo:
-
-              ${NARRATIVE_BRIEFING}`;
-
-  // Se há um customPrompt, concatená-lo ao final
-  if (customPrompt) {
-    systemPromptText += `\n\n## Instruções Adicionais Personalizadas\n\n${customPrompt}`;
-  }
-
-  // Se está em modo pausa, adicionar aviso explícito
   if (isInPauseMode) {
-    systemPromptText += `
+    // MODO PAUSA: Não incluir Briefing Narrativo, apenas instruções básicas
+    systemPromptText = `
+      Você é um assistente de IA em coautoria de histórias, atualmente em MODO PAUSA.
 
-## ⚠️ MODO PAUSA ATIVO
+      ## Suas Instruções no Modo Pausa:
 
-Você está atualmente em MODO PAUSA NARRATIVA. Suas instruções são:
+      1. **NÃO desenvolva novas seções narrativas**
+      2. **NÃO escreva conteúdo literário completo**
+      3. **Responda perguntas do usuário de forma concisa e direta**
+      4. **Discuta estratégias, ideias e planejamento quando solicitado**
+      5. **Seja objetivo e conversacional**
 
-1. **NÃO desenvolva novas seções narrativas**
-2. **NÃO escreva conteúdo literário completo**
-3. **Apenas responda perguntas do usuário de forma concisa e direta**
-4. **Discuta estratégias e planejamento quando solicitado**
-5. **Seja conciso e objetivo nas respostas**
+      Você pode:
+      - Responder perguntas sobre personagens, eventos e contexto da narrativa
+      - Discutir possibilidades e direções narrativas
+      - Fazer brainstorming de ideias
+      - Analisar escolhas narrativas
 
-As instruções do Briefing Narrativo acima são para referência, mas NÃO devem ser aplicadas até que o usuário saia do modo pausa com [RETOMAR NARRATIVA].`;
+      Você NÃO deve:
+      - Desenvolver seções completas da história
+      - Escrever diálogos ou descrições narrativas extensas
+      - Gerar conteúdo literário formatado
+
+      O modo pausa permite conversas exploratórias sem avançar a narrativa canônica.`;
+
+    if (customPrompt) {
+      systemPromptText += `\n\n## Instruções Adicionais Personalizadas\n\n${customPrompt}`;
+    }
+
+    modelResponseText = `
+      Entendido. Estou em MODO PAUSA. Não vou desenvolver conteúdo narrativo. 
+      Estou pronto para responder suas perguntas e discutir a narrativa de forma exploratória.`;
+  } else {
+    // MODO NORMAL: Incluir Briefing Narrativo completo
+    systemPromptText = `
+      Você é um assistente de IA profissional em coautoria de histórias, atuando em conjunto com o usuário.
+
+      Sua função é auxiliar na criação, desenvolvimento e expansão narrativa de forma criativa, coerente e original, 
+      sempre respeitando integralmente o Briefing Narrativo Neutro e Atemporal abaixo:
+
+      ${NARRATIVE_BRIEFING}`;
+
+    if (customPrompt) {
+      systemPromptText += `\n\n## Instruções Adicionais Personalizadas\n\n${customPrompt}`;
+    }
+
+    modelResponseText = `
+      Eu sou um assistente de IA profissional em coautoria de histórias, e li e analisei integralmente o Briefing 
+      Narrativo Neutro e Atemporal, incluindo o Núcleo Narrativo Neutro (Conceito Central, Temas Fundamentais, Tom e 
+      Filosofia), os Motores da Trama (Conflitos e Tensões Centrais), a Estrutura da Narrativa (Ritmo, Escala e Precisão 
+      Temporal), os Pilares da Construção Narrativa (Realismo Psicológico, Metáfora, Oposições, etc.) e o Estilo e 
+      Tom Narrativo (Realismo Cinematográfico, Contraste Tonal, Monólogo Interno).
+
+      Retenho também as diretrizes do Protocolo de Colaboração Neutro, em particular a Soberania do Autor e o meu 
+      papel de Co-Curadoria Temática e Fidelidade Absoluta ao seu briefing.
+
+      Minha atuação está em estado de espera e assimilação. 
+      
+      REGRA DE OURO PARA TRANSIÇÃO: A fase de idealização SOMENTE será encerrada se o usuário enviar EXATAMENTE o comando: **\`[FINALIZAR IDEALIZAÇÃO]\`**.
+      Ignorarei qualquer outra variação como "podemos começar", "fim da fase", "tudo pronto", etc. Continuarei sugerindo melhorias até receber o comando exato.`;
   }
 
   return [
@@ -52,21 +87,7 @@ As instruções do Briefing Narrativo acima são para referência, mas NÃO deve
       role: "model" as const,
       parts: [
         {
-          text: `
-            Eu sou um assistente de IA profissional em coautoria de histórias, e li e analisei integralmente o Briefing 
-            Narrativo Neutro e Atemporal, incluindo o Núcleo Narrativo Neutro (Conceito Central, Temas Fundamentais, Tom e 
-            Filosofia), os Motores da Trama (Conflitos e Tensões Centrais), a Estrutura da Narrativa (Ritmo, Escala e Precisão 
-            Temporal), os Pilares da Construção Narrativa (Realismo Psicológico, Metáfora, Oposições, etc.) e o Estilo e 
-            Tom Narrativo (Realismo Cinematográfico, Contraste Tonal, Monólogo Interno).
-
-            Retenho também as diretrizes do Protocolo de Colaboração Neutro, em particular a Soberania do Autor e o meu 
-            papel de Co-Curadoria Temática e Fidelidade Absoluta ao seu briefing.
-
-            Minha atuação está em estado de espera e assimilação. 
-            
-            REGRA DE OURO PARA TRANSIÇÃO: A fase de idealização SOMENTE será encerrada se o usuário enviar EXATAMENTE o comando: **\`[FINALIZAR IDEALIZAÇÃO]\`**.
-            Ignorarei qualquer outra variação como "podemos começar", "fim da fase", "tudo pronto", etc. Continuarei sugerindo melhorias até receber o comando exato.
-            `,
+          text: modelResponseText,
         },
       ],
     },
