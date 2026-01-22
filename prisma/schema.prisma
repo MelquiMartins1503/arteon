@@ -1,0 +1,16 @@
+// This is your Prisma schema file
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  extensions = [pg_graphql(schema: "graphql"), pg_stat_statements(schema: "extensions"), pgcrypto(schema: "extensions"), supabase_vault(schema: "vault"), uuid_ossp(schema: "extensions"), vector(schema: "extensions")]
+  schemas = ["public"]
+}
+
+// Models are imported from prisma/models/ during build
+// Run: pnpm run prisma:build to generate the complete schema
