@@ -21,7 +21,7 @@ export class KnowledgeBaseFormatter {
   async loadKnowledgeBaseAsMessages(
     storyId: string,
     userMessage?: string,
-    tokenBudget: number = 3000,
+    tokenBudget: number = 6000,
   ): Promise<ChatMessage[]> {
     try {
       let entities: Array<{
@@ -47,7 +47,7 @@ export class KnowledgeBaseFormatter {
         // Calcular K adaptativo baseado no orçamento de tokens
         const avgTokensPerEntity = 60; // Estimativa conservadora
         const maxEntities = Math.floor(tokenBudget / avgTokensPerEntity);
-        const K = Math.min(maxEntities, 50); // Cap em 50 entidades
+        const K = Math.min(maxEntities, 100); // Cap em 100 entidades
 
         entities = await this.searchBySimilarity(storyId, messageEmbedding, K);
 
@@ -56,7 +56,7 @@ export class KnowledgeBaseFormatter {
         const expandedIds =
           await this.relationshipManager.expandWithRelationships(
             entityIds,
-            10, // máximo 10 entidades adicionais
+            20, // máximo 20 entidades adicionais
           );
 
         // Se houve expansão, carregar entidades adicionais
@@ -134,7 +134,7 @@ export class KnowledgeBaseFormatter {
             importance: true,
           },
           orderBy: [{ importance: "desc" }, { updatedAt: "desc" }],
-          take: 50,
+          take: 100,
         });
       }
 
@@ -228,7 +228,7 @@ export class KnowledgeBaseFormatter {
         ],
       },
       orderBy: { strength: "desc" },
-      take: 50, // Limitar para não sobrecarregar
+      take: 100, // Limitar para não sobrecarregar
     });
 
     for (const entity of entities) {

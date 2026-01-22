@@ -444,6 +444,47 @@ export async function POST(
     });
 
     // ========================================================================
+    // DETECÇÃO AUTOMÁTICA DE PAUSA PELA IA (VERIFICAÇÃO DE COERÊNCIA)
+    // ========================================================================
+    // Detectar se a IA pausou a narrativa devido a erro do autor
+    // A IA informa a pausa em linguagem natural, não com comando formatado
+    const aiPauseIndicators = [
+      /pausar?\s+a?\s*narrativa/i,
+      /detectei\s+(?:um\s+)?erro/i,
+      /identificou-se\s+(?:uma\s+)?viola[çc][ãa]o/i,
+      /inconsist[êe]ncia\s+detectada/i,
+      /conflito\s+com/i,
+      /n[ãa]o\s+(?:posso|poderei)\s+(?:prosseguir|continuar)/i,
+    ];
+
+    const aiInitiatedPause = aiPauseIndicators.some(
+      (pattern) => pattern.test(responseText.substring(0, 500)), // Checar primeiros 500 chars
+    );
+
+    if (aiInitiatedPause && !isInPauseMode) {
+      try {
+        await prismaClient.conversationHistory.update({
+          where: { id: conversationHistoryWithMessages.id },
+          data: { pauseNarrativeMode: true },
+        });
+
+        logger.info(
+          {
+            conversationHistoryId: conversationHistoryWithMessages.id,
+            trigger: "AI_INITIATED_PAUSE",
+            messagePreview: responseText.substring(0, 200),
+          },
+          "🤖 IA pausou automaticamente a narrativa (Verificação de Coerência)",
+        );
+      } catch (error) {
+        logger.error(
+          { error },
+          "Erro ao registrar pausa automática iniciada pela IA",
+        );
+      }
+    }
+
+    // ========================================================================
     // EXTRAÇÃO AUTOMÁTICA DE CONHECIMENTO
     // ========================================================================
     // Extrair de:
@@ -484,7 +525,10 @@ export async function POST(
 
         // Carregar entidades existentes para contexto
         const existingEntities = await prismaClient.storyEntity.findMany({
-          where: { storyId: story.uuid },
+          where: {
+            storyId: story.uuid,
+            status: "ACTIVE", // ✅ Apenas entidades ativas
+          },
           select: { name: true, type: true },
         });
 

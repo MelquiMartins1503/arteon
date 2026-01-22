@@ -78,6 +78,73 @@ export class EntityManager {
       "🔍 Processando entidade...",
     );
 
+    // ⚠️ VALIDAÇÃO 1: DENSIDADE DE INFORMAÇÃO (rejeitar irrelevantes)
+    if (
+      entity.description.length < 50 &&
+      entity.type !== "EVENT" &&
+      entity.type !== "DECISION"
+    ) {
+      logger.warn(
+        {
+          entityName: entity.name,
+          descriptionLength: entity.description.length,
+        },
+        "⚠️ Descrição muito curta - entidade provavelmente irrelevante. REJEITANDO.",
+      );
+      return "skipped";
+    }
+
+    // ⚠️ VALIDAÇÃO 2: REJEITAR EVENTOS (devem estar nas mensagens, não na KB)
+    if (entity.type === "EVENT") {
+      logger.info(
+        { entityName: entity.name },
+        "⚠️ Entidade do tipo EVENT detectada - estas devem estar nas mensagens narrativas, não na KB. REJEITANDO.",
+      );
+      return "skipped";
+    }
+
+    // ⚠️ VALIDAÇÃO 3: NOMENCLATURA DE PERSONAGENS (rejeitar nomes incompletos)
+    if (entity.type === "CHARACTER") {
+      const nameParts = entity.name.trim().split(/\s+/);
+
+      if (nameParts.length < 2) {
+        logger.warn(
+          {
+            entityName: entity.name,
+            nameParts: nameParts.length,
+          },
+          "⚠️ ALERTA: Nome de personagem muito curto detectado. Tentando buscar versão completa...",
+        );
+
+        // Tentar encontrar versão completa existente
+        const fullNameMatch = await this.findFullNameVersion(
+          storyId,
+          entity.name,
+        );
+
+        if (fullNameMatch) {
+          logger.info(
+            {
+              shortName: entity.name,
+              fullName: fullNameMatch.name,
+            },
+            "✅ Versão completa encontrada. Usando entidade existente.",
+          );
+          // Adicionar nome curto como alias
+          entity.aliases = [...(entity.aliases || []), entity.name];
+          entity.name = fullNameMatch.name;
+          return await this.updateEntity(fullNameMatch.id, entity, messageId);
+        } else {
+          // Se não encontrou versão completa, rejeitar criação
+          logger.error(
+            { entityName: entity.name },
+            "❌ ERRO: Nome de personagem incompleto e nenhuma versão completa encontrada. REJEITANDO criação.",
+          );
+          return "skipped";
+        }
+      }
+    }
+
     // CAMADA 1: Busca exata (rápida)
     const exactMatch = await this.findExactMatch(storyId, entity);
     if (exactMatch) {
@@ -136,6 +203,7 @@ export class EntityManager {
       where: {
         storyId,
         type: entity.type, // Mesmo tipo
+        status: "ACTIVE", // ✅ Apenas entidades ativas
         OR: [
           { name: { equals: entity.name, mode: "insensitive" } },
           { aliases: { hasSome: [entity.name, ...(entity.aliases || [])] } },
@@ -159,6 +227,7 @@ export class EntityManager {
       where: {
         storyId,
         type: entity.type,
+        status: "ACTIVE", // ✅ Apenas entidades ativas
       },
       select: { id: true, name: true, aliases: true },
     });
@@ -197,6 +266,7 @@ export class EntityManager {
       where: {
         storyId,
         type: entity.type,
+        status: "ACTIVE", // ✅ Apenas entidades ativas
       },
       select: { id: true, name: true },
     });
@@ -228,6 +298,42 @@ export class EntityManager {
     }
 
     return bestMatch ? { id: bestMatch.id, name: bestMatch.name } : null;
+  }
+
+  /**
+   * NOVO: Busca versão completa de um nome curto
+   * Ex: "Isolde" -> "Isolde Von Adler"
+   */
+  private async findFullNameVersion(
+    storyId: string,
+    shortName: string,
+  ): Promise<{ id: number; name: string } | null> {
+    const normalized = this.normalizeForMatching(shortName);
+
+    const candidates = await prismaClient.storyEntity.findMany({
+      where: {
+        storyId,
+        type: "CHARACTER",
+        status: "ACTIVE", // ✅ Apenas entidades ativas
+      },
+      select: { id: true, name: true },
+    });
+
+    for (const candidate of candidates) {
+      const candidateNorm = this.normalizeForMatching(candidate.name);
+      const candidateParts = candidateNorm.split(" ");
+
+      // Se o candidato tem nome completo e começa com o nome curto
+      if (candidateParts.length >= 2 && candidateParts[0] === normalized) {
+        logger.info(
+          { shortName, fullName: candidate.name },
+          "✅ Versão completa de nome curto encontrada",
+        );
+        return { id: candidate.id, name: candidate.name };
+      }
+    }
+
+    return null;
   }
 
   /**

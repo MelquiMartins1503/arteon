@@ -228,77 +228,124 @@ export class KnowledgeExtractor {
             : "";
 
         const prompt = `
-Você é um especialista em estruturar lore e worldbuilding.
+Você é um especialista em estruturar lore e worldbuilding para uma BASE DE CONHECIMENTO DE REFERÊNCIA.
 
-🎯 MISSÃO CRÍTICA: EXTRAIA **TODAS** AS ENTIDADES MENCIONADAS NESTE TRECHO.
-Este é o chunk ${index + 1} de ${chunks.length}. Você DEVE processar TODO o conteúdo abaixo.
+# ⚠️ REGRAS CRÍTICAS DE NOMENCLATURA (OBRIGATÓRIO)
+
+**PARA ENTIDADES DO TIPO CHARACTER:**
+- SEMPRE use o nome COMPLETO (Nome + Sobrenome/Título)
+- NUNCA use apenas o primeiro nome no campo "name"
+- Mínimo de 2 palavras para personagens
+
+**Exemplos CORRETOS:**
+✅ "Klaus Von Mittelsen"
+✅ "Anneliese Von Steinberg"
+✅ "Isolde Von Adler"
+✅ "Wolfgang Von Mittelsen"
+
+**Exemplos PROIBIDOS:**
+❌ "Klaus"
+❌ "Anneliese"
+❌ "Isolde"
+
+➡️ Se você encontrar menções usando apenas o primeiro nome, DEVE inferir o sobrenome completo baseado no contexto.
+➡️ O nome curto vai para o campo "aliases", NÃO para "name".
+
+Exemplo correto:
+{
+  "type": "CHARACTER",
+  "name": "Klaus Von Mittelsen",  // ✅ Nome completo
+  "aliases": ["Klaus", "O Príncipe Guerreiro"],  // ✅ Nome curto como alias
+  ...
+}
+
+# 📌 CRITÉRIOS DE RELEVÂNCIA (OBRIGATÓRIO)
+
+Esta é uma BASE DE CONHECIMENTO DE REFERÊNCIA. Mensagens narrativas já são carregadas separadamente.
+
+**✅ DEVE EXTRAIR (Permanente e Estrutural):**
+- Características físicas PERMANENTES (cor dos olhos, altura, traços)
+- Personalidade NUCLEAR (traços que não mudam)
+- Cargos/posições FORMAIS (ex: "Futuro Führer", "Comandante")
+- Data de nascimento
+- Relacionamentos ESTRUTURAIS (família, hierarquia formal, romance estabelecido)
+- Locais geográficos e suas descrições permanentes
+- Conceitos fundamentais do universo narrativo
+
+**❌ NÃO DEVE EXTRAIR (Temporário ou Redundante com Mensagens):**
+- Eventos narrativos específicos (ex: "Klaus foi à reunião no dia X")
+- Estados emocionais temporários (ex: "Klaus está preocupado")
+- Diálogos ou pensamentos (ex: "Klaus disse: 'Vamos em frente'")
+- Descrições de cenas (ex: "O escritório estava escuro")
+- Ações pontuais (ex: "Klaus caminhou até a porta")
+- Conflitos temporários (ex: "Klaus desconfia de Isolde no momento")
+
+**🧪 TESTE DE RELEVÂNCIA:**
+Pergunte: "Esta informação ainda será verdadeira daqui a 10 capítulos?"
+- Se SIM → Extrair
+- Se NÃO → Ignorar
+
+---
+
+🎯 MISSÃO: EXTRAIA **APENAS** AS ENTIDADES RELEVANTES E PERMANENTES NESTE TRECHO.
+Este é o chunk ${index + 1} de ${chunks.length}.
 
 TEXTO DO DOSSIÊ (PARTE ${index + 1}):
 """
 ${chunk}
 """
 ${contextInfo}
-⚠️ REGRAS ABSOLUTAS:
-✅ **EXTRAIA TODAS as entidades mencionadas neste trecho, MESMO que o nome apareça na lista acima**
-✅ **Descrições detalhadas**: 3-5 frases para principais, 2-3 para secundárias
-✅ **Atributos completos**: Idade, aparência, poderes, origem, tudo que for mencionado
-✅ **Relacionamentos**: Identifique TODOS, mesmo implícitos
-❌ **NÃO pule nenhuma entidade** só porque o nome está na lista de contexto
-❌ **NÃO resuma** - seja detalhado
-
-💡 **SOBRE O CONTEXTO**: A lista acima mostra nomes de outros chunks. Se você encontrar os mesmos nomes aqui COM NOVAS informações, extraia normalmente. Se forem entidades DIFERENTES com nomes similares, extraia também.
 
 **TIPOS DE ENTIDADES:**
-- **CHARACTER** (Personagem): Pessoas, seres conscientes
+- **CHARACTER** (Personagem): Pessoas, seres conscientes - SEMPRE COM NOME COMPLETO
 - **LOCATION** (Local): Lugares físicos nomeados
 - **OBJECT** (Objeto): Itens importantes, artefatos
-- **EVENT** (Evento): Acontecimentos significativos
 - **CONCEPT** (Conceito): Sistemas, leis, magias, filosofias
 - **FACTION** (Facção): Grupos, organizações, famílias
-- **DECISION** (Decisão): Escolhas importantes
+- **EVENT** (Evento): ⚠️ USE COM CAUTELA - apenas eventos históricos fundamentais, NÃO eventos narrativos pontuais
+- **DECISION** (Decisão): ⚠️ RARAMENTE USADO - apenas decisões que definem características permanentes
 
-**TIPOS DE RELACIONAMENTOS VÁLIDOS (use EXATAMENTE estes nomes):**
+**TIPOS DE RELACIONAMENTOS VÁLIDOS (APENAS ESTRUTURAIS):**
 - **FAMILY** - Família (pai, mãe, irmão, filho, cônjuge)
-- **FRIENDSHIP** - Amizade, aliados próximos
-- **ROMANCE** - Romance, amor, relacionamento amoroso
-- **RIVALRY** - Rivalidade, competição
-- **MENTORSHIP** - Mentor/aprendiz, mestre/estudante
-- **HIERARCHY** - Superior/subordinado, comando, liderança
-- **ALLIANCE** - Aliança política/estratégica
-- **ENEMY** - Inimizade declarada, antagonismo
+- **HIERARCHY** - Superior/subordinado formal
+- **ROMANCE** - Romance ESTABELECIDO (não crush temporário)
+- **ENEMY** - Inimizade FORMAL (não desentendimento pontual)
+- **MEMBERSHIP** - Membro de facção/organização
 - **OWNERSHIP** - Posse (CHARACTER → OBJECT)
-- **RESIDENCE** - Moradia (CHARACTER → LOCATION)
-- **MEMBERSHIP** - Membro de, pertence a (CHARACTER → FACTION) - **USE PARA FUNDADORES**
-- **PARTICIPATION** - Participou de (CHARACTER → EVENT)
-- **BELIEF** - Acredita em, segue (CHARACTER → CONCEPT)
-- **AFFILIATION** - Afiliação geral (use somente se nenhum outro se aplicar)
+- **RESIDENCE** - Moradia permanente (CHARACTER → LOCATION)
+- **BELIEF** - Acredita em conceito fundamental
+
+⚠️ NÃO CRIE relacionamentos para: amizades casuais, rivalidades temporárias, alianças pontuais
 
 **FORMATO JSON (APENAS JSON, SEM COMENTÁRIOS):**
 {
   "entities": [
     {
-      "type": "CHARACTER|LOCATION|OBJECT|EVENT|CONCEPT|FACTION|DECISION",
-      "name": "Nome Completo",
-      "description": "Descrição detalhada com 3-5 frases...",
+      "type": "CHARACTER|LOCATION|OBJECT|CONCEPT|FACTION",
+      "name": "Nome Completo Obrigatório para CHARACTER",
+      "description": "Descrição PERMANENTE e ESTRUTURAL (3-5 frases)",
       "attributes": {
         "chave": "valor"
       },
       "importance": 1-10,
-      "aliases": ["Apelido1", "Título1"]
+      "aliases": ["Variante1", "Título1"]
     }
   ],
   "relationships": [
     {
-      "fromEntityName": "Nome Exato",
-      "toEntityName": "Nome Exato",
-      "type": "FAMILY|FRIENDSHIP|ROMANCE|RIVALRY|MENTORSHIP|HIERARCHY|ALLIANCE|ENEMY|OWNERSHIP|RESIDENCE|MEMBERSHIP|PARTICIPATION|BELIEF|AFFILIATION",
-      "description": "Descrição da relação",
+      "fromEntityName": "Nome Exato Completo",
+      "toEntityName": "Nome Exato Completo",
+      "type": "FAMILY|HIERARCHY|ROMANCE|ENEMY|MEMBERSHIP|OWNERSHIP|RESIDENCE|BELIEF",
+      "description": "Descrição da relação PERMANENTE",
       "strength": 1-10
     }
   ]
 }
 
-🎯 LEMBRE-SE: Extraia TUDO deste trecho. Não omita nada.
+🎯 LEMBRE-SE: 
+- Nomes COMPLETOS para personagens
+- APENAS informações permanentes e estruturais
+- Descrições com mínimo de 50 caracteres
 `;
 
         // Usar Gemini 2.0 Flash
@@ -413,9 +460,33 @@ ${contextInfo}
     );
 
     return `
+# ⚠️ REGRAS CRÍTICAS DE NOMENCLATURA
+
+**PERSONAGENS (CHARACTER):**
+- SEMPRE nome COMPLETO: "Klaus Von Mittelsen", não "Klaus"
+- Nome curto vai para "aliases": ["Klaus"]
+- Mínimo: 2 palavras
+
+# 📌 CRITÉRIOS DE RELEVÂNCIA
+
+BASE DE CONHECIMENTO = informações PERMANENTES
+Mensagens narrativas = já carregadas no contexto
+
+**✅ EXTRAIR:**
+- Características permanentes (aparência fixa, personalidade nuclear)
+- Cargos formais, datas de nascimento
+- Relacionamentos estruturais (família, hierarquia)
+
+**❌ NÃO EXTRAIR:**
+- Eventos pontuais, estados temporários, diálogos, ações, cenas
+
+**TESTE:** "Será verdade daqui a 10 capítulos?" → SIM = extrair, NÃO = ignorar
+
+---
+
 Você é um assistente especializado em identificar informações importantes de narrativas.
 
-Analise este texto narrativo e extraia TODAS as informações relevantes:
+Analise este texto narrativo e extraia APENAS informações PERMANENTES e RELEVANTES:
 
 ${content}
 

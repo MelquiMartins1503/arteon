@@ -18,6 +18,7 @@ enum EntityStatus {
   ACTIVE         // Ativo e relevante na narrativa
   ARCHIVED       // Não mais ativo mas mantido
   DEPRECATED     // Substituído ou removido
+  MERGED         // Duplicata mesclada em outra entidade
   
   @@schema("public")
 }
@@ -61,6 +62,11 @@ model StoryEntity {
   // Prioridade e metadados
   importance   Int      @default(5)  // 1-10, prioridade no contexto
   status       EntityStatus @default(ACTIVE)
+  
+  // Deduplicação (tracking de merges)
+  mergedIntoId Int?    @map("merged_into_id")  // ID da entidade canônica (se esta foi mesclada)
+  mergedInto   StoryEntity? @relation("MergedEntities", fields: [mergedIntoId], references: [id], onDelete: SetNull)
+  mergedDuplicates StoryEntity[] @relation("MergedEntities")
   
   // Embedding semântico para busca vetorial
   contextVector Unsupported("vector")? @map("context_vector")  // Vetor de embeddings (Gemini text-embedding-004)
