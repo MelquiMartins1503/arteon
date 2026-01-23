@@ -260,9 +260,22 @@ export async function POST(
     );
 
     // Converter mensagens para formato Gemini
-    history = await historyOptimizer.buildOptimizedHistory(messages);
-
-    logger.info({ stats }, "Histórico seletivo carregado e otimizado");
+    // Em modo pausa, pular otimização para manter todas as mensagens completas
+    if (isInPauseMode) {
+      // Modo pausa: sem otimização, todas as mensagens completas
+      history = messages.map((message) => ({
+        role: message.role === "USER" ? ("user" as const) : ("model" as const),
+        parts: [{ text: message.content }],
+      }));
+      logger.info(
+        { totalMessages: messages.length },
+        "Modo pausa: Histórico completo sem otimização",
+      );
+    } else {
+      // Modo narrativo: otimizar para economizar tokens
+      history = await historyOptimizer.buildOptimizedHistory(messages);
+      logger.info({ stats }, "Histórico seletivo carregado e otimizado");
+    }
 
     // ========================================================================
     // INJETAR KNOWLEDGE BASE (SEMPRE)

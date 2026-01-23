@@ -96,9 +96,9 @@ export class SelectiveHistoryLoader {
     },
     PAUSAR_NARRATIVA: {
       messageTypes: [
-        { type: "DECA", limit: 10 }, // Últimos 10 DECA
-        { type: "GENERAL", limit: 8 }, // Últimas 8 conversas
-        { type: "SECTION_CONTENT", limit: 30 }, // Últimas 10 seções
+        { type: "DECA", limit: 20 }, // Últimos 10 DECA
+        { type: "GENERAL", limit: 15 }, // Últimas 8 conversas
+        { type: "SECTION_CONTENT", limit: 60 }, // Últimas 60 seções
       ],
     },
     RETOMAR_NARRATIVA: {
@@ -110,7 +110,7 @@ export class SelectiveHistoryLoader {
       // Fallback: carrega um pouco de cada tipo
       messageTypes: [
         { type: "DECA", limit: 1 },
-        { type: "SECTION_CONTENT", limit: 3 },
+        { type: "SECTION_CONTENT", limit: 60 },
         { type: "SECTION_PROPOSAL", limit: 1 },
       ],
       includeImportant: true,
