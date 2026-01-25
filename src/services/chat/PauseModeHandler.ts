@@ -93,7 +93,7 @@ export async function handlePauseModeCommands(
       lastDeca?.content ||
       "Nenhum DECA encontrado. Comece gerando um com [GERAR DECA].";
 
-    const responseMessage = `**NARRATIVA RETOMADA**\n\n${decaContent}\n\n---\n\n**Próximo passo recomendado:**\n- **[SUGERIR PRÓXIMA SEÇÃO]** → Planejar próximo passo\n\nAguardando seu comando.`;
+    const responseMessage = `**NARRATIVA RETOMADA**\n\n${decaContent}`;
 
     // Salvar resposta do sistema
     await prisma.message.create({
