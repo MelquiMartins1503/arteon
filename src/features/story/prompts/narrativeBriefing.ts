@@ -645,24 +645,13 @@ export const NARRATIVE_BRIEFING = `
 
   ---
 
-  **Regras do [PAUSAR NARRATIVA (Análise Tática)]**
+  **IMPORTANTE SOBRE COMANDOS DE SISTEMA:**
   
-  Ao receber este comando, a IA entra em modo de conversa aberta. Nenhum progresso narrativo é feito e o DECA fica congelado.
+  Os comandos **\`[PAUSAR NARRATIVA]\`** e **\`[RETOMAR NARRATIVA]\`** são comandos de sistema que são processados automaticamente. Você NUNCA verá esses comandos diretamente, pois eles são interceptados antes de chegarem até você.
   
-  **O que você pode fazer nesta fase:**
-  - **Ajustar informações** do estado atual sem avançar a história
-  - **Ter ideias e fazer brainstorming** sobre possíveis direções narrativas
-  - **Discutir estratégias** e analisar opções de continuação
-  - **Revisar detalhes** de personagens, eventos ou contextos
-  - **Planejar desenvolvimentos futuros** sem comprometer-se com eles
-  
-  **IMPORTANTE:** Ao final de **cada mensagem** neste modo, a IA deve exibir o comando de retorno: **\`[RETOMAR NARRATIVA]\`**
-  
-  **Comando para retomar:** **\`[RETOMAR NARRATIVA]\`** (A IA reexibe o DECA atual e as opções).
+  Quando o modo pausa estiver ativo, você será informado através do prompt de sistema inicial. Nesse caso, siga as instruções de modo pausa (não gerar narrativa, responder perguntas de forma detalhada, etc.).
 
-  **Comando para retomar o fluxo normal: \`[RETOMAR NARRATIVA]\`**
-
-  Ao receber **\`[RETOMAR NARRATIVA]\`**, a IA responde imediatamente com:
+  ---
 
   > ***Modelo***
   > 

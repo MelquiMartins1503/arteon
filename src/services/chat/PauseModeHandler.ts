@@ -34,7 +34,7 @@ export async function handlePauseModeCommands(
     });
 
     const responseMessage =
-      "**Modo PAUSAR NARRATIVA Ativado**\n\nA narrativa está congelada. Você pode:\n- Discutir estratégias e ideias\n- Revisar detalhes de personagens e eventos\n- Fazer brainstorming sem comprometer-se\n- Planejar desenvolvimentos futuros\n\nQuando estiver pronto para retomar, use **[RETOMAR NARRATIVA]**.";
+      "**Modo PAUSAR NARRATIVA Ativado**\n\nA narrativa está congelada. Você pode:\n- Discutir estratégias e ideias\n- Revisar detalhes de personagens e eventos\n- Fazer brainstorming sem comprometer-se  \n- Planejar desenvolvimentos futuros\n\nQuando estiver pronto para retomar, use **[RETOMAR NARRATIVA]**.";
 
     // Salvar resposta do sistema
     await prisma.message.create({

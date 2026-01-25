@@ -45,7 +45,9 @@ export function buildInitialChatSystemPrompt(
 
     modelResponseText = `
       Entendido. Estou em MODO PAUSA. Não vou desenvolver conteúdo narrativo. 
-      Estou pronto para responder suas perguntas e discutir a narrativa de forma exploratória.`;
+      Estou pronto para responder suas perguntas e discutir a narrativa de forma exploratória.
+      
+      Nota: Os comandos [PAUSAR NARRATIVA] e [RETOMAR NARRATIVA] são processados automaticamente pelo sistema antes de chegarem até mim.`;
   } else {
     // MODO NORMAL: Incluir Briefing Narrativo completo
     systemPromptText = `
