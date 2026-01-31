@@ -6,7 +6,7 @@ import logger from "@/lib/logger";
  */
 export class EmbeddingGenerator {
   private genAI: GoogleGenerativeAI;
-  private readonly MODEL = "text-embedding-004";
+  private readonly MODEL = "models/text-embedding-004";
   private embeddingCache: Map<string, number[]> = new Map();
   private readonly CACHE_TTL = 10 * 60 * 1000; // 10 minutos
 
