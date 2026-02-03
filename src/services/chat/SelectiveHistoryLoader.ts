@@ -53,7 +53,7 @@ export class SelectiveHistoryLoader {
     SUGERIR_PROXIMA_SECAO: {
       messageTypes: [
         { type: "DECA", limit: 1 }, // Último DECA
-        { type: "GENERAL", limit: 10 }, // Últimas 10 conversas
+        { type: "GENERAL", limit: 30 }, // Últimas 30 conversas
         { type: "SECTION_CONTENT", limit: 20 }, // Últimas 10 seções
         { type: "SECTION_PROPOSAL", limit: 1 }, // Última proposta
       ],
@@ -64,7 +64,7 @@ export class SelectiveHistoryLoader {
     SUGERIR_ESTRUTURA_DE_SECOES: {
       messageTypes: [
         { type: "DECA", limit: 1 }, // Último DECA
-        { type: "GENERAL", limit: 10 }, // Últimas 10 conversas
+        { type: "GENERAL", limit: 30 }, // Últimas 30 conversas
         { type: "SECTION_CONTENT", limit: 20 }, // Últimas 10 seções
         { type: "SECTION_PROPOSAL", limit: 3 }, // Últimas 3 propostas
       ],
@@ -75,6 +75,7 @@ export class SelectiveHistoryLoader {
       messageTypes: [
         { type: "SECTION_STRUCTURE", limit: 1 }, // Última estrutura proposta
         { type: "DECA", limit: 1 }, // Último DECA
+        { type: "GENERAL", limit: 30 }, // Últimas 30 conversas
         { type: "SECTION_CONTENT", limit: 5 }, // Últimas 5 seções
       ],
       includeImportant: true,
@@ -84,7 +85,7 @@ export class SelectiveHistoryLoader {
       messageTypes: [
         { type: "SECTION_PROPOSAL", limit: 1 }, // Última proposta
         { type: "SECTION_CONTENT", limit: 3 }, // Últimas 3 seções
-        { type: "GENERAL", limit: 15 }, // Últimas 15 conversas
+        { type: "GENERAL", limit: 30 }, // Últimas 30 conversas
         { type: "DECA", limit: 1 }, // Último DECA
       ],
     },
@@ -97,7 +98,7 @@ export class SelectiveHistoryLoader {
     PAUSAR_NARRATIVA: {
       messageTypes: [
         { type: "DECA", limit: 20 }, // Últimos 10 DECA
-        { type: "GENERAL", limit: 15 }, // Últimas 8 conversas
+        { type: "GENERAL", limit: 30 }, // Últimas 30 conversas
         { type: "SECTION_CONTENT", limit: 60 }, // Últimas 60 seções
       ],
     },
@@ -112,6 +113,7 @@ export class SelectiveHistoryLoader {
         { type: "DECA", limit: 1 },
         { type: "SECTION_CONTENT", limit: 60 },
         { type: "SECTION_PROPOSAL", limit: 1 },
+        { type: "GENERAL", limit: 30 }, // Últimas 30 conversas
       ],
       includeImportant: true,
       maxImportantMessages: 3,
