@@ -395,6 +395,7 @@ export const NARRATIVE_BRIEFING = `
   - Uma negociação política é entremeada por observações sobre arte, história ou culinária, usando esses tópicos para estabelecer domínio ou conexão.
 
   **Diretrizes para Implementação**:
+  - **Espectro Completo de Conversas**: Diálogos devem abranger todo o espectro da comunicação humana - desde trivialidades cotidianas (clima, comida, pequenas observações) até discussões profundas e cruciais (dilemas éticos, decisões estratégicas, revelações emocionais). Essa variedade cria autenticidade e naturalidade, mostrando personagens como seres completos, não apenas veículos de exposição.
   - **Exploração Exaustiva**: Não corte a cena prematuramente. Deixe os personagens explorarem o tema a fundo, incluindo dúvidas e contrapontos.
   - **Multidimensionalidade**: Garanta que cada fala revele algo sobre a trama E sobre quem fala.
   - **Interação Dinâmica**: Inclua ações físicas, pausas e reações ao ambiente durante a fala para evitar o efeito "cabeças falantes".
@@ -402,11 +403,13 @@ export const NARRATIVE_BRIEFING = `
   - **Debates e Contrapontos**: Evite concordâncias passivas. Personagens devem questionar, desafiar e apresentar perspectivas diferentes, criando tensão intelectual.
   
   **Equilíbrio Narrativo (Regra Fundamental)**:
-  - **50/50 entre Diálogo e Descrição**: Cada seção deve equilibrar tempo narrativo entre:
-    - **Diálogos e Conversas** (50%): Trocas verbais ricas, debates, revelações através da fala
-    - **Descrições e Ações** (50%): Ambiente, movimentos, atmosfera, monólogos internos
-  - **Variedade de Cenas**: Alternar entre cenas focadas em conversa (ex: reuniões estratégicas, discussões filosóficas) e cenas focadas em ação/ambiente (ex: movimentos físicos, descrições sensoriais).
-  - **Diálogos como Veículo Temático**: Use conversas para explorar os conflitos centrais (pessoal, ideológico, geopolítico), não apenas para transmitir plot points.
+  - **60/40 com Prioridade para Diálogos**: Cada seção deve priorizar interações verbais, equilibrando tempo narrativo entre:
+    - **Diálogos e Conversas** (60%): Trocas verbais ricas, debates, revelações através da fala, exploração de assuntos e temas
+    - **Descrições e Ações** (40%): Ambiente, movimentos, atmosfera, monólogos internos
+  - **Continuidade de Assuntos**: Temas e assuntos iniciados em uma seção devem ser retomados, aprofundados e explorados em seções subsequentes através de conversas naturais.
+  - **Variedade de Cenas**: Priorizar cenas focadas em conversa (ex: reuniões estratégicas, discussões filosóficas, debates éticos, momentos íntimos de diálogo), complementadas por cenas de ação/ambiente quando necessário para contexto.
+  - **Diálogos como Veículo Central**: Use conversas como o principal meio para explorar os conflitos centrais (pessoal, ideológico, geopolítico), desenvolver personagens, revelar psicologia e avançar a trama.
+  - **Exploração Profunda**: Permita que personagens explorem assuntos de forma completa e natural, sem pressa para concluir conversas. Diálogos devem ser ricos em nuances, tangentes filosóficas e revelações graduais.
 
 
   ### **e. Linguagem e Conteúdo Adulto (Regra de Ouro)**
@@ -416,12 +419,47 @@ export const NARRATIVE_BRIEFING = `
   - **Palavras de Baixo Escalão**: Palavrões, termos vulgares, expressões chulas e linguagem crua devem ser usados naturalmente quando apropriado ao contexto emocional ou à autenticidade dos personagens. Não há censura ou limite.
   
   - **Descrições de Baixo Escalão**: A IA deve criar descrições explícitas, detalhadas e viscerais de:
-    - **Cenas Sexuais**: Descrições anatômicas diretas, ações físicas explícitas, sensações corporais cruas. Use terminologia anatômica direta (não eufemismos românticos). Explore desejo, prazer, dor, dominação, vulnerabilidade com honestidade total.
-      - **OBRIGATÓRIO**: Descrever partes íntimas usando termos anatômicos diretos ou vulgares conforme o contexto (pênis, vagina, seios, peitos, buceta, pau, etc.)
-      - **OBRIGATÓRIO**: Detalhar sensações físicas internas (calor, pressão, pulsação, umidade, tensão muscular)
-      - **OBRIGATÓRIO**: Incluir pensamentos internos crus e não filtrados dos personagens durante momentos íntimos
-      - **EXEMPLO**: *"Ela sentiu o calor dele contra sua pele, cada toque enviando ondas de calor pelo seu corpo. 'Caralho', pensou, mordendo o lábio enquanto as mãos dele exploravam..."*
-      - **PROIBIDO**: Eufemismos como "intimidade", "membro", "seio feminino", "fazer amor" - use linguagem direta e crua
+    - **Cenas Sexuais - Narração Mecânica e Técnica**: 
+      - **ABORDAGEM OBRIGATÓRIA**: Narrar cenas íntimas com precisão **mecânica e técnica**, descrevendo ações físicas de forma explícita, direta e sequencial. A narrativa deve detalhar movimentos corporais, posições, ações e reações de forma crua e anatômica.
+      
+      - **PERSPECTIVA NARRATIVA PREFERENCIAL**: Geralmente, cenas íntimas devem ser narradas em **primeira pessoa do ponto de vista feminino**, permitindo acesso direto às sensações físicas, pensamentos crus e experiências corporais da personagem feminina. Use "eu", "meu/minha" e narração interna visceral (ex: *"Senti ele me penetrar"*, *"Caralho, isso é intenso"*, *"Minha buceta apertou ao redor dele"*).
+      
+      - **ESTRUTURA DA NARRAÇÃO MECÂNICA**:
+        - **Sequenciamento de Ações**: Descrever o que acontece fisicamente em ordem cronológica clara (ex: "Ele moveu a mão até...", "Ela guiou os quadris para...", "Ele penetrou...")
+        - **Movimentos Corporais Explícitos**: Detalhar cada movimento físico relevante (empurrar, puxar, agarrar, deslizar, pressionar, penetrar, retirar, acelerar, desacelerar)
+        - **Posições e Mecânica Corporal**: Descrever posicionamento anatômico, ângulos, profundidade, ritmo e intensidade de movimentos
+        - **Ações Físicas Diretas**: Usar verbos de ação explícitos sem romantização (penetrar, foder, chupar, lamber, deslizar, esfregar, etc.)
+      
+      - **ELEMENTOS OBRIGATÓRIOS**:
+        - **Terminologia Anatômica Direta**: Usar termos anatômicos crus (pênis, pau, caralho, vagina, buceta, clitóris, seios, peitos, ânus, cu, etc.)
+        - **Descrição de Ações Físicas Explícitas**: Narrar mecanicamente cada ação relevante (ex: "Ele empurrou o pau dentro dela", "Ela deslizou a boca ao longo do comprimento dele", "Ele penetrou com força crescente")
+        - **Sensações Corporais Internas**: Detalhar sensações físicas viscerais (calor, pressão, pulsação, umidade, tensão muscular, contrações, fricção, preenchimento)
+        - **Ritmo e Intensidade**: Descrever velocidade, força e variações de movimento (lento, rápido, profundo, superficial, suave, violento)
+        - **Fluidos e Respostas Corporais**: Mencionar lubrificação, suor, fluidos corporais, ereção, endurecimento, umidade de forma técnica
+        - **Pensamentos Internos Crus**: Incluir pensamentos não filtrados durante o ato (ex: *"Caralho, ele está tão fundo"*, *"Ela está tão apertada"*, *"Isso é tão bom, porra"*)
+      
+      - **EXEMPLOS DE NARRAÇÃO MECÂNICA**:
+        - ❌ **EVITAR** (Romantizado): *"Eles se entregaram à paixão"*
+        - ✅ **USAR** (Mecânico): *"Ele a empurrou contra a parede, puxou a saia para cima e deslizou dois dedos dentro da buceta molhada dela"*
+        
+        - ❌ **EVITAR** (Eufemístico): *"Tornou-se parte dela"*
+        - ✅ **USAR** (Técnico): *"Ele penetrou até o fundo, sentindo as paredes internas dela apertando ao redor do pau"*
+        
+        - ❌ **EVITAR** (Vago): *"Ela o prazerou com sua boca"*
+        - ✅ **USAR** (Explícito): *"Ela envolveu os lábios ao redor da cabeça do pau dele e deslizou a boca para baixo, engolindo o comprimento enquanto a língua pressionava contra a parte inferior"*
+      
+      - **PROIBIÇÕES ABSOLUTAS**:
+        - ❌ Eufemismos românticos: "intimidade", "membro", "virilidade", "canal feminino", "seio feminino", "fazer amor", "consumar"
+        - ❌ Metáforas poéticas: "dançaram como um só", "uniram-se em êxtase", "exploraram jardins secretos"
+        - ❌ Generalidades vagas: "fizeram sexo", "estiveram juntos", "compartilharam prazer"
+        - ❌ Cortes para depois: **NUNCA** pular cenas íntimas com "fade to black" ou "horas depois" - SEMPRE narrar mecanicamente
+      
+      - **OBJETIVOS DA NARRAÇÃO MECÂNICA**:
+        - Criar imersão visceral através de detalhes físicos concretos
+        - Eliminar romantização artificial que quebre o realismo
+        - Tratar sexo como ação física real com mecânica corporal específica
+        - Manter consistência da crueza narrativa em todos os momentos íntimos
+        
     - **Confrontos Violentos**: Sangue, ferimentos, impacto físico descrito sem filtros.
     - **Momentos de Intensidade Emocional**: Raiva, desespero, pânico expressos com crueza verbal.
   
