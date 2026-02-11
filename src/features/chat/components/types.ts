@@ -11,7 +11,6 @@ export interface ChatMessage {
   shouldAnimate?: boolean;
   suggestedPrompts?: string[]; // Sugestões de acompanhamento da IA
   isLastMessage?: boolean; // Se é a última mensagem (para controlar botões)
-  audioUrl?: string; // URL do audio gerado
   imageUrls?: string[]; // URLs das imagens anexadas
 
   status?: "pending" | "saved" | "error"; // Tracking state: pending (temp ID), saved (has dbId), error (failed)

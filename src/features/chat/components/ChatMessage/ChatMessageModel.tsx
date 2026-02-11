@@ -9,12 +9,11 @@ import { ChatMessageSuggestedPrompts } from "./ChatMessageSuggestedPrompts";
 
 interface ChatMessageModelProps {
   id: string; // React ID
-  dbId?: number; // DB ID (needed for audio generation)
+  dbId?: number; // DB ID
   content: string;
   shouldAnimate?: boolean;
   suggestedPrompts?: string[];
   isLastMessage?: boolean;
-  audioUrl?: string;
 }
 
 export const ChatMessageModel = ({
@@ -24,7 +23,6 @@ export const ChatMessageModel = ({
   shouldAnimate,
   suggestedPrompts,
   isLastMessage,
-  audioUrl,
 }: ChatMessageModelProps) => {
   const { messageComponents, onPromptClick, onAnimationComplete } =
     useChatContext();
@@ -73,11 +71,7 @@ export const ChatMessageModel = ({
         )}
 
         {showActions && !isInterruptedMessage && (
-          <ChatMessageActions
-            content={content}
-            messageId={dbId?.toString()} // Convert number to string for params
-            initialAudioUrl={audioUrl}
-          />
+          <ChatMessageActions content={content} />
         )}
       </Box>
     </Box>

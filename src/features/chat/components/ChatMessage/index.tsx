@@ -3,7 +3,6 @@ import { ChatMessageModel } from "./ChatMessageModel";
 import { ChatMessageUser } from "./ChatMessageUser";
 
 interface ChatMessage {
-  audioUrl?: string;
   id: string;
   dbId?: number;
   content: string;
@@ -39,7 +38,6 @@ export const ChatMessage = ({ message }: ChatMessageProps) => {
       shouldAnimate={message.shouldAnimate}
       suggestedPrompts={message.suggestedPrompts}
       isLastMessage={message.isLastMessage}
-      audioUrl={message.audioUrl}
     />
   );
 };

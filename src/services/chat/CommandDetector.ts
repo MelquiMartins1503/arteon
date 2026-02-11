@@ -30,7 +30,7 @@ export class CommandDetector {
       /\[APROVAR\s+E\s+SELAR\s+ESBO[ÇC]O\s+DE\s+ESTRUTURA\]/i,
     APROVAR_E_SELAR_ESBOÇO: /\[APROVAR\s+E\s+SELAR\s+ESBO[ÇC]O\]/i,
     REVISAR_E_CORRIGIR: /\[REVISAR\s+E\s+CORRIGIR\s+SE[ÇC][AÃ]O\]/i,
-    PAUSAR_NARRATIVA: /\[PAUSAR\s+NARRATIVA/i,
+    PAUSAR_NARRATIVA: /\[PAUSAR\s+NARRATIVA.*?\]/i,
     RETOMAR_NARRATIVA: /\[RETOMAR\s+NARRATIVA\]/i,
   };
 

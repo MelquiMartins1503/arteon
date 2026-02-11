@@ -21,6 +21,12 @@ export class GeminiClient {
     const { maxAttempts, initialDelay, backoffMultiplier } = CHAT_CONFIG.retry;
 
     while (attempt < maxAttempts) {
+      // ✅ Verificar abort antes de cada tentativa
+      if (abortSignal?.aborted) {
+        logger.warn("Requisição abortada antes de iniciar tentativa");
+        return { text: "", interrupted: true };
+      }
+
       try {
         const result = await chat.sendMessageStream(prompt);
         let responseText = "";
@@ -42,6 +48,12 @@ export class GeminiClient {
       } catch (error) {
         attempt++;
 
+        // ✅ Verificar abort logo após erro
+        if (abortSignal?.aborted) {
+          logger.warn("Requisição abortada durante tratamento de erro");
+          return { text: "", interrupted: true };
+        }
+
         // Tratamento específico de erros do Gemini
         if (error instanceof GoogleGenerativeAIError) {
           const errorMessage = error.message.toLowerCase();
@@ -57,7 +69,15 @@ export class GeminiClient {
                 { attempt, delay, error: errorMessage },
                 "Rate limit/Quota excedido, tentando novamente",
               );
-              await this.sleep(delay);
+              // ✅ Sleep interruptível
+              await this.sleepWithAbort(delay, abortSignal);
+
+              // ✅ Verificar abort após sleep
+              if (abortSignal?.aborted) {
+                logger.warn("Requisição abortada durante backoff");
+                return { text: "", interrupted: true };
+              }
+
               continue;
             } else {
               throw new Error(
@@ -91,7 +111,15 @@ export class GeminiClient {
             { attempt, delay, error },
             "Erro ao comunicar com Gemini, tentando novamente",
           );
-          await this.sleep(delay);
+          // ✅ Sleep interruptível
+          await this.sleepWithAbort(delay, abortSignal);
+
+          // ✅ Verificar abort após sleep
+          if (abortSignal?.aborted) {
+            logger.warn("Requisição abortada durante backoff");
+            return { text: "", interrupted: true };
+          }
+
           continue;
         }
 
@@ -108,9 +136,19 @@ export class GeminiClient {
   }
 
   /**
-   * Helper para sleep com Promise
+   * Helper para sleep com Promise que pode ser interrompido por AbortSignal
    */
-  private sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+  private sleepWithAbort(ms: number, signal?: AbortSignal): Promise<void> {
+    return new Promise((resolve) => {
+      const timeout = setTimeout(resolve, ms);
+
+      // Se signal abortar, cancelar timeout e resolver imediatamente
+      const abortHandler = () => {
+        clearTimeout(timeout);
+        resolve();
+      };
+
+      signal?.addEventListener("abort", abortHandler, { once: true });
+    });
   }
 }

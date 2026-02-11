@@ -198,6 +198,7 @@ export async function updateStoryPrompt(data: {
     });
 
     // Process Knowledge Base Input if provided
+    /* KNOWLEDGE BASE DISABLED
     if (data.knowledgeBaseInput?.trim()) {
       try {
         const {
@@ -319,6 +320,14 @@ export async function updateStoryPrompt(data: {
         );
         // Don't fail the whole operation, just log the error
       }
+    }
+    */
+    // Knowledge base import desativado
+    if (data.knowledgeBaseInput?.trim()) {
+      logger.info(
+        { storyUuid: data.storyUuid },
+        "Knowledge base import está desativado - input ignorado",
+      );
     }
 
     return { success: true };

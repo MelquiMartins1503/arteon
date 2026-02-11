@@ -280,6 +280,7 @@ export async function POST(
     // ========================================================================
     // INJETAR KNOWLEDGE BASE (SEMPRE)
     // ========================================================================
+    /* KNOWLEDGE BASE DISABLED
     const kbFormatter = new KnowledgeBaseFormatter();
     const kbMessages = await kbFormatter.loadKnowledgeBaseAsMessages(
       story.uuid,
@@ -298,6 +299,9 @@ export async function POST(
         "Knowledge Base injetada no contexto",
       );
     }
+    */
+    // Knowledge base desativado - sem contexto adicional
+    logger.info("Knowledge Base está desativado");
 
     // Injetar prompt inicial do sistema (após KB, antes do histórico)
     const initialSystemPrompt = buildInitialChatSystemPrompt(
@@ -500,6 +504,7 @@ export async function POST(
     // ========================================================================
     // EXTRAÇÃO AUTOMÁTICA DE CONHECIMENTO
     // ========================================================================
+    /* KNOWLEDGE BASE DISABLED
     // Extrair de:
     // 1. SECTION_CONTENT (conteúdo gerado pela IA)
     // 2. SECTION_PROPOSAL (propostas podem ter informações)
@@ -609,6 +614,9 @@ export async function POST(
         );
       }
     }
+    */
+    // Extração automática de conhecimento desativada
+    logger.info("Knowledge extraction está desativado");
 
     // ========================================================================
     // GERAR SUGESTÕES (SE SOLICITADO)
