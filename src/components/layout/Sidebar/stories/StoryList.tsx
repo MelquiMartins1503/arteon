@@ -1,7 +1,9 @@
 "use client";
 
-import { AnimatePresence, Reorder } from "framer-motion";
+import { AnimatePresence, motion, Reorder } from "framer-motion";
+import { Plus } from "lucide-react";
 import { Box } from "@/components/Box";
+import { Button } from "@/components/Button";
 import { Typography } from "@/components/Typography";
 import type { StorySidebarItem } from "@/features/story/actions";
 import { updateStoriesOrder } from "@/features/story/actions";
@@ -14,6 +16,8 @@ interface StoryListProps {
   isMobile?: boolean;
   onDeleteStory: (story: StorySidebarItem) => void;
   onEditStory: (story: { uuid: string }) => void;
+  onCreateStory: () => void;
+  isCollapsed?: boolean;
 }
 
 export function StoryList({
@@ -23,17 +27,47 @@ export function StoryList({
   isMobile = false,
   onDeleteStory,
   onEditStory,
+  onCreateStory,
+  isCollapsed,
 }: StoryListProps) {
   return (
     <Box flexDirection="col" gap={2} className="h-full">
-      <Typography
-        as="span"
-        weight="medium"
-        whitespace="nowrap"
-        className="pl-3.5 shrink-0"
-      >
-        Minhas Histórias
-      </Typography>
+      <Box alignItems="center" justifyContent="between" className="w-full">
+        <Typography
+          as="span"
+          weight="medium"
+          whitespace="nowrap"
+          className="pl-3.5 shrink-0"
+        >
+          Histórias
+        </Typography>
+
+        <Button
+          variant="ghost"
+          justifyContent="center"
+          size="icon-sm"
+          rounded="lg"
+          onClick={onCreateStory}
+        >
+          <AnimatePresence mode="wait">
+            {!isCollapsed && (
+              <motion.div
+                initial={{ opacity: 0, scaleX: 0 }}
+                animate={{ opacity: 1, scaleX: 1 }}
+                exit={{ opacity: 0, scaleX: 0 }}
+                transition={{
+                  duration: 0.2,
+                  ease: [0.4, 0, 0.2, 1],
+                }}
+                style={{ originX: 0 }}
+                className="overflow-hidden whitespace-nowrap"
+              >
+                <Plus size={20} strokeWidth={1.5} />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </Button>
+      </Box>
 
       <Reorder.Group
         axis="y"
@@ -48,7 +82,7 @@ export function StoryList({
           }));
           updateStoriesOrder(orderUpdate);
         }}
-        className="flex overflow-y-auto flex-col flex-1"
+        className="flex overflow-y-auto flex-col flex-1 gap-1"
       >
         <AnimatePresence initial={false}>
           {isLoaded &&

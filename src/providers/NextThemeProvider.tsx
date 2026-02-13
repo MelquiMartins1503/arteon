@@ -1,7 +1,7 @@
 "use client";
 
 import { ThemeProvider, useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { cloneElement, type FC, useEffect, useState } from "react";
 import { Box } from "@/components/Box";
 
 export default function NextThemeProvider({
@@ -24,7 +24,9 @@ export default function NextThemeProvider({
   );
 }
 
-export function NextThemeTrigger() {
+export const NextThemeTrigger: FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -36,14 +38,18 @@ export function NextThemeTrigger() {
     setTheme(next);
   };
 
-  return (
-    <Box
-      as="button"
-      type="button"
-      onClick={toggleTheme}
-      className="w-full h-full cursor-pointer"
-    >
-      Toggle Theme
-    </Box>
-  );
-}
+  // Clone the child element and merge the onClick handler
+  if (!children || typeof children !== "object") return null;
+
+  const child = children as React.ReactElement;
+  // biome-ignore lint/suspicious/noExplicitAny: Need flexible type for dynamic props
+  const childProps = (child.props || {}) as any;
+
+  // biome-ignore lint/suspicious/noExplicitAny: Need flexible type for cloneElement
+  return cloneElement(child, {
+    onClick: (e: React.MouseEvent) => {
+      toggleTheme();
+      if (childProps.onClick) childProps.onClick(e);
+    },
+  } as any);
+};

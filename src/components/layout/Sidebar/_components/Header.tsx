@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { X } from "lucide-react";
 import { Box } from "@/components/Box";
 import { Button } from "@/components/Button";
 import { Typography } from "@/components/Typography";
@@ -12,7 +13,7 @@ export const iconAnimation = {
   transition: { type: "spring" as const, stiffness: 260, damping: 20 },
 };
 
-interface SidebarHeaderProps {
+interface HeaderProps {
   isCollapsed?: boolean;
   isMobile?: boolean;
   onToggle?: () => void;
@@ -20,13 +21,13 @@ interface SidebarHeaderProps {
   ToggleIcon?: React.ComponentType<{ size?: number; strokeWidth?: number }>;
 }
 
-export function SidebarHeader({
+export function Header({
   isCollapsed = false,
   isMobile = false,
   onToggle,
   onClose,
   ToggleIcon,
-}: SidebarHeaderProps) {
+}: HeaderProps) {
   return (
     <Box
       alignItems="center"
@@ -34,7 +35,7 @@ export function SidebarHeader({
       className={cn(
         "w-full",
         isMobile && "pl-3.5",
-        !isMobile && !isCollapsed && "w-60",
+        !isMobile && "min-h-[74px]",
       )}
     >
       {!isMobile && (
@@ -46,10 +47,10 @@ export function SidebarHeader({
               exit={{ opacity: 0, scaleX: 0 }}
               transition={{
                 duration: 0.15,
-                ease: [0.4, 0, 0.2, 1], // Material Design easing
+                ease: [0.4, 0, 0.2, 1],
               }}
-              style={{ originX: 0 }} // Scale from left
-              className="overflow-hidden text-xl font-medium whitespace-nowrap"
+              style={{ originX: 0 }}
+              className="overflow-hidden text-2xl font-medium whitespace-nowrap pl-3.5"
             >
               Arteon
             </motion.div>
@@ -58,20 +59,23 @@ export function SidebarHeader({
       )}
 
       {isMobile && (
-        <Typography size="xl" weight="medium">
+        <Typography size="2xl" weight="medium">
           Arteon
         </Typography>
       )}
 
       {(onToggle || onClose) && (
         <Button
-          variant="ghost-secondary"
+          variant="ghost"
           size="icon-lg"
           onClick={onToggle || onClose}
+          rounded="2xl"
           className="p-0"
         >
           {isMobile && onClose ? (
-            <></>
+            <motion.div {...iconAnimation}>
+              <X size={24} strokeWidth={1.5} />
+            </motion.div>
           ) : (
             ToggleIcon && (
               <motion.div

@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
     }
 
     const token = jwt.sign({ id: newUser.id }, jwtSecret, {
-      expiresIn: "1d",
+      expiresIn: "3d",
     });
 
     if (!token) {

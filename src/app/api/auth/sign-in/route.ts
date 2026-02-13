@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
         name: user.name,
       },
       jwtSecret,
-      { expiresIn: "1d" },
+      { expiresIn: "3d" },
     );
 
     // Criar resposta com cookie

@@ -2,12 +2,10 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { Box } from "@/components/Box";
+import { Content } from "@/components/layout/Sidebar/_components/Content";
 import type { StorySidebarItem } from "@/features/story/actions";
-import { SidebarHeader } from "./SidebarHeader";
-import { SidebarNav } from "./SidebarNav";
-import { StoryList } from "./StoryList";
 
-interface MobileSidebarProps {
+interface DrawerSidebarProps {
   mobileOpen: boolean;
   setMobileOpen: (open: boolean) => void;
   stories: StorySidebarItem[];
@@ -18,7 +16,7 @@ interface MobileSidebarProps {
   setIsCreateStoryOpen: (open: boolean) => void;
 }
 
-export function MobileSidebar({
+export function DrawerSidebar({
   mobileOpen,
   setMobileOpen,
   stories,
@@ -27,7 +25,7 @@ export function MobileSidebar({
   setStoryToDelete,
   setStoryToEdit,
   setIsCreateStoryOpen,
-}: MobileSidebarProps) {
+}: DrawerSidebarProps) {
   return (
     <AnimatePresence>
       {mobileOpen && (
@@ -38,7 +36,6 @@ export function MobileSidebar({
           animate="open"
           exit="closed"
         >
-          {/* Overlay */}
           <motion.div
             key="overlay"
             initial={{ opacity: 0 }}
@@ -58,33 +55,18 @@ export function MobileSidebar({
             transition={{ type: "spring", bounce: 0, duration: 0.3 }}
             className="fixed top-0 bottom-0 left-0 z-50 flex-col w-72 bg-brand-100 dark:bg-brand-925 border-r border-brand-300 dark:border-brand-800 md:hidden"
           >
-            <Box
-              className="overflow-hidden p-2 w-full h-full"
-              flexDirection="col"
-              gap={2}
-            >
-              {/* Header */}
-              <SidebarHeader isMobile onClose={() => setMobileOpen(false)} />
-
-              {/* Navigation */}
-              <SidebarNav onCreateStory={() => setIsCreateStoryOpen(true)} />
-
-              {/* Story List */}
-              <Box flexDirection="col" className="overflow-hidden flex-1 mt-4">
-                <AnimatePresence>
-                  <Box flexDirection="col" gap={2} className="h-full">
-                    <StoryList
-                      stories={stories}
-                      setStories={setStories}
-                      isLoaded={isLoaded}
-                      isMobile
-                      onDeleteStory={setStoryToDelete}
-                      onEditStory={setStoryToEdit}
-                    />
-                  </Box>
-                </AnimatePresence>
-              </Box>
-            </Box>
+            <Content
+              isCollapsed={false}
+              setIsCollapsed={() => setMobileOpen(false)}
+              stories={stories}
+              setStories={setStories}
+              isLoaded={isLoaded}
+              setStoryToDelete={setStoryToDelete}
+              setStoryToEdit={setStoryToEdit}
+              setIsCreateStoryOpen={setIsCreateStoryOpen}
+              isMobile={true}
+              onClose={() => setMobileOpen(false)}
+            />
           </Box>
         </motion.div>
       )}

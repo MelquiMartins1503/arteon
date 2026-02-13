@@ -1,16 +1,27 @@
 "use client";
 
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getStories, type StorySidebarItem } from "@/features/story/actions";
+import {
+  deleteStory,
+  getStories,
+  type StorySidebarItem,
+} from "@/features/story/actions";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { api } from "@/lib/api";
 import logger from "@/lib/logger";
-import { DesktopSidebar } from "./DesktopSidebar";
-import { MobileSidebar } from "./MobileSidebar";
-import { SidebarDialogs } from "./SidebarDialogs";
+import { CollapsibleSidebar } from "./_layouts/CollapsibleSidebar";
+import { DrawerSidebar } from "./_layouts/DrawerSidebar";
+import {
+  CreateStoryDialog,
+  DeleteStoryDialog,
+  EditStoryDialog,
+} from "./_modals";
 import type { SidebarProps } from "./types";
 
 export function Sidebar({ mobileOpen, setMobileOpen }: SidebarProps) {
+  const router = useRouter();
+  const pathname = usePathname();
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -57,6 +68,40 @@ export function Sidebar({ mobileOpen, setMobileOpen }: SidebarProps) {
     }
   };
 
+  const handleDeleteStory = async () => {
+    if (!storyToDelete) return;
+
+    // Check if user is currently viewing this story
+    const isOnStoryPage = pathname === `/stories/${storyToDelete.uuid}`;
+
+    // Optimistic delete
+    setStories((prev) => prev.filter((s) => s.uuid !== storyToDelete.uuid));
+    setStoryToDelete(null); // Close modal
+
+    await deleteStory(storyToDelete.uuid);
+
+    // Redirect to home if user was viewing this story
+    if (isOnStoryPage) {
+      router.push("/");
+    }
+  };
+
+  const handleCreateSuccess = (story: StorySidebarItem) => {
+    setStories((prev) => [...prev, story]);
+  };
+
+  const handleEditSuccess = () => {
+    // Optimistic update already handled in the form hook
+    // Update stories list with the new title
+    if (storyToEdit) {
+      setStories((prev) =>
+        prev.map((s) =>
+          s.uuid === storyToEdit.uuid ? { ...s, title: storyToEdit.title } : s,
+        ),
+      );
+    }
+  };
+
   useEffect(() => {
     if (!isMobile) {
       setMobileOpen(false);
@@ -69,7 +114,7 @@ export function Sidebar({ mobileOpen, setMobileOpen }: SidebarProps) {
   return (
     <>
       {isMobile ? (
-        <MobileSidebar
+        <DrawerSidebar
           mobileOpen={mobileOpen}
           setMobileOpen={setMobileOpen}
           stories={stories}
@@ -80,7 +125,7 @@ export function Sidebar({ mobileOpen, setMobileOpen }: SidebarProps) {
           setIsCreateStoryOpen={setIsCreateStoryOpen}
         />
       ) : (
-        <DesktopSidebar
+        <CollapsibleSidebar
           isCollapsed={isCollapsed}
           setIsCollapsed={setIsCollapsed}
           stories={stories}
@@ -92,15 +137,22 @@ export function Sidebar({ mobileOpen, setMobileOpen }: SidebarProps) {
         />
       )}
 
-      <SidebarDialogs
-        storyToDelete={storyToDelete}
-        setStoryToDelete={setStoryToDelete}
-        storyToEdit={storyToEdit}
-        setStoryToEdit={setStoryToEdit}
-        isCreateStoryOpen={isCreateStoryOpen}
-        setIsCreateStoryOpen={setIsCreateStoryOpen}
-        stories={stories}
-        setStories={setStories}
+      <DeleteStoryDialog
+        story={storyToDelete}
+        onClose={() => setStoryToDelete(null)}
+        onConfirm={handleDeleteStory}
+      />
+
+      <CreateStoryDialog
+        isOpen={isCreateStoryOpen}
+        onClose={() => setIsCreateStoryOpen(false)}
+        onSuccess={handleCreateSuccess}
+      />
+
+      <EditStoryDialog
+        story={storyToEdit}
+        onClose={() => setStoryToEdit(null)}
+        onSuccess={handleEditSuccess}
       />
     </>
   );

@@ -54,7 +54,7 @@ export class ErrorBoundary extends Component<Props, State> {
           alignItems="center"
           justifyContent="center"
           gap={4}
-          className="min-h-screen p-4"
+          className="w-full min-h-screen p-4"
         >
           <Box flexDirection="col" alignItems="center" gap={2}>
             <Typography variant="h2" className="text-red-500">
