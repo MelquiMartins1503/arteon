@@ -32,7 +32,7 @@ export const ChatInputTags = () => {
           >
             <Button
               type="button"
-              variant="ghost-secondary"
+              variant="ghost"
               leftIcon={<AlertCircle size={16} />}
               rightIcon={<X size={16} strokeWidth={1.5} />}
               onClick={toggleImportant}
@@ -58,7 +58,7 @@ export const ChatInputTags = () => {
           >
             <Button
               type="button"
-              variant="ghost-secondary"
+              variant="ghost"
               leftIcon={<Database size={16} />}
               rightIcon={<X size={16} strokeWidth={1.5} />}
               onClick={toggleIsMeta}
@@ -84,7 +84,7 @@ export const ChatInputTags = () => {
           >
             <Button
               type="button"
-              variant="ghost-secondary"
+              variant="ghost"
               leftIcon={<Sparkles size={16} />}
               rightIcon={<X size={16} strokeWidth={1.5} />}
               onClick={toggleGenerateSuggestions}
