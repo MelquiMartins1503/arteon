@@ -60,7 +60,7 @@ export const ChatMessageImages: React.FC<ChatMessageImagesProps> = ({
             type="button"
             className="relative rounded-2xl overflow-hidden cursor-pointer hover:opacity-90 transition-opacity border-0 p-0"
             style={{
-              maxHeight: "185.59px",
+              maxHeight: "235px",
               maxWidth: "350px",
             }}
             onClick={() => setSelectedImage(index)}
@@ -72,10 +72,11 @@ export const ChatMessageImages: React.FC<ChatMessageImagesProps> = ({
                 src={imageUrls[index] || ""}
                 alt={`Imagem ${index + 1}`}
                 style={{
-                  maxHeight: "185.59px",
+                  maxHeight: "235px",
                   maxWidth: "350px",
                   width: "100%",
                   height: "100%",
+                  objectFit: "cover",
                 }}
               />
             ) : (

@@ -1,10 +1,15 @@
-import { NARRATIVE_BRIEFING } from "./narrativeBriefing";
+import type { NarrativeCommand } from "@/services/chat";
+import type { GeminiMessage } from "@/types/chat";
+import {
+  getNarrativeBriefing,
+  loadModulesForCommand,
+} from "./narrativeBriefing";
 
 /**
  * Constrói a mensagem inicial do sistema para a fase de Criação da História/Chat.
  * Insere o Briefing Narrativo completo e estabelece o papel da IA.
  */
-export function buildInitialChatSystemPrompt(
+export async function buildInitialChatSystemPrompt(
   customPrompt?: string | null,
   isInPauseMode?: boolean,
 ) {
@@ -50,13 +55,15 @@ export function buildInitialChatSystemPrompt(
       Nota: Os comandos [PAUSAR NARRATIVA] e [RETOMAR NARRATIVA] são processados automaticamente pelo sistema antes de chegarem até mim.`;
   } else {
     // MODO NORMAL: Incluir Briefing Narrativo completo
+    const narrativeBriefing = await getNarrativeBriefing();
+
     systemPromptText = `
       Você é um assistente de IA profissional em coautoria de histórias, atuando em conjunto com o usuário.
 
       Sua função é auxiliar na criação, desenvolvimento e expansão narrativa de forma criativa, coerente e original, 
       sempre respeitando integralmente o Briefing Narrativo Neutro e Atemporal abaixo:
 
-      ${NARRATIVE_BRIEFING}`;
+      ${narrativeBriefing}`;
 
     if (customPrompt) {
       systemPromptText += `\n\n## Instruções Adicionais Personalizadas\n\n${customPrompt}`;
@@ -227,9 +234,8 @@ export function buildBlockSummaryPrompt(
 /**
  * Constrói o prompt para gerar sugestões de continuação para o usuário.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function buildSuggestedPromptsPrompt(
-  history: any[],
+  history: GeminiMessage[],
   lastResponse: string,
 ) {
   return `
@@ -273,6 +279,89 @@ export function buildPauseModeOverrideMessage() {
       parts: [
         {
           text: "Entendido. Estou em MODO PAUSA. Não vou desenvolver novas seções narrativas. Responderei suas perguntas de forma detalhada e aprofundada, explorando o assunto com profundidade.",
+        },
+      ],
+    },
+  ];
+}
+
+/**
+ * Constrói a mensagem do sistema com briefing modular baseado no comando.
+ * Carrega apenas os módulos necessários para reduzir uso de tokens.
+ *
+ * @param command - Comando narrativo detectado (ex: "GERAR_DECA", "SUGERIR_PROXIMA_SECAO")
+ * @param customPrompt - Prompt personalizado opcional
+ * @param isInPauseMode - Se está em modo pausa
+ * @returns Array com mensagens user/model para inicializar o chat
+ */
+export async function buildModularChatSystemPrompt(
+  command: NarrativeCommand | null,
+  customPrompt?: string | null,
+  isInPauseMode?: boolean,
+) {
+  let systemPromptText: string;
+  let modelResponseText: string;
+
+  if (isInPauseMode) {
+    // MODO PAUSA: Não incluir Briefing Narrativo
+    systemPromptText = `
+      Você é um assistente de IA em coautoria de histórias, atualmente em MODO PAUSA.
+
+      ## Suas Instruções no Modo Pausa:
+
+      1. **NÃO desenvolva novas seções narrativas**
+      2. **NÃO escreva conteúdo literário completo**
+      3. **Responda perguntas do usuário de forma DETALHADA e APROFUNDADA**
+      4. **Discuta estratégias, ideias e planejamento de forma COMPLETA quando solicitado**
+      5. **Seja útil, didático e conversacional**
+
+      O modo pausa permite conversas exploratórias E APROFUNDADAS sem avançar a narrativa canônica.`;
+
+    if (customPrompt) {
+      systemPromptText += `\n\n## Instruções Adicionais Personalizadas\n\n${customPrompt}`;
+    }
+
+    modelResponseText = `
+      Entendido. Estou em MODO PAUSA. Não vou desenvolver conteúdo narrativo. 
+      Estou pronto para responder suas perguntas e discutir a narrativa de forma exploratória.`;
+  } else {
+    // MODO NORMAL: Carregar módulos contextuais baseados no comando
+    const contextualBriefing = command
+      ? await loadModulesForCommand(command)
+      : await loadModulesForCommand("GENERAL");
+
+    systemPromptText = `
+      Você é um assistente de IA profissional em coautoria de histórias, atuando em conjunto com o usuário.
+
+      Sua função é auxiliar na criação, desenvolvimento e expansão narrativa de forma criativa, coerente e original, 
+      sempre respeitando integralmente as diretrizes do Briefing Narrativo abaixo:
+
+      ${contextualBriefing}`;
+
+    if (customPrompt) {
+      systemPromptText += `\n\n## Instruções Adicionais Personalizadas\n\n${customPrompt}`;
+    }
+
+    modelResponseText = `
+      Entendido. Li e analisei as diretrizes narrativas fornecidas.
+      Retenho as diretrizes do Protocolo de Colaboração.
+      Aguardando suas instruções.`;
+  }
+
+  return [
+    {
+      role: "user" as const,
+      parts: [
+        {
+          text: systemPromptText,
+        },
+      ],
+    },
+    {
+      role: "model" as const,
+      parts: [
+        {
+          text: modelResponseText,
         },
       ],
     },

@@ -23,13 +23,6 @@ import {
 } from "@/services/chat";
 import { handlePauseModeCommands } from "@/services/chat/PauseModeHandler";
 import { GeminiClient } from "@/services/gemini/GeminiClient";
-import {
-  EntityManager,
-  type ExtractionResult,
-  KnowledgeBaseFormatter,
-  KnowledgeExtractor,
-  RelationshipManager,
-} from "@/services/knowledge";
 import type { GeminiMessage } from "@/types/chat";
 
 export async function POST(
@@ -304,7 +297,7 @@ export async function POST(
     logger.info("Knowledge Base está desativado");
 
     // Injetar prompt inicial do sistema (após KB, antes do histórico)
-    const initialSystemPrompt = buildInitialChatSystemPrompt(
+    const initialSystemPrompt = await buildInitialChatSystemPrompt(
       conversationHistoryWithMessages.customPrompt,
       isInPauseMode, // Passar modo pausa para incluir aviso se necessário
     );
@@ -392,7 +385,7 @@ export async function POST(
     const userMessageSummary = await generateSummaryIfNeeded(prompt);
 
     // Salvar mensagem do usuário DENTRO de transação
-    const savedUserMessage = await prismaClient.$transaction(async (tx) => {
+    const _savedUserMessage = await prismaClient.$transaction(async (tx) => {
       const userMessage = await tx.message.create({
         data: {
           content: prompt,

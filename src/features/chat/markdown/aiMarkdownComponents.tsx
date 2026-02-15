@@ -95,7 +95,7 @@ export const aiMarkdownComponents: Components = {
     <blockquote
       {...props}
       className={cn(
-        "pl-6 my-4 mt-6 italic border-l-4 text-brand-700 dark:text-brand-300 border-brand-300 dark:border-brand-700",
+        "pl-6 my-4 mt-6 italic border-l-4 text-brand-700 dark:text-brand-300 border-brand-300 dark:border-brand-700 whitespace-pre-wrap",
       )}
     />
   ),

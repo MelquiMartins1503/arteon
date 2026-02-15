@@ -33,7 +33,6 @@ export const ChatMessage = ({ message }: ChatMessageProps) => {
   return (
     <ChatMessageModel
       id={message.id}
-      dbId={message.dbId}
       content={message.content}
       shouldAnimate={message.shouldAnimate}
       suggestedPrompts={message.suggestedPrompts}

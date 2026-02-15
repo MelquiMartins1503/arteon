@@ -7,7 +7,7 @@ import logger from "@/lib/logger";
  * Cliente wrapper para o Gemini API com tratamento de erros e retry logic
  */
 export class GeminiClient {
-  constructor(private genAI: GoogleGenerativeAI) {}
+  constructor(_genAI: GoogleGenerativeAI) {}
 
   /**
    * Envia mensagem via stream com retry e tratamento de erros

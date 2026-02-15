@@ -20,6 +20,7 @@ const Chat = ({
   onPromptClick,
   onAnimationComplete,
   onStopGeneration,
+  deleteMessage,
 }: ChatConfig) => {
   const [_isInputValid, setIsInputValid] = useState(false);
   const CHAT_FORM_ID = "chat-form-input";
@@ -31,6 +32,7 @@ const Chat = ({
       messageComponents={messageComponents}
       onPromptClick={onPromptClick}
       onAnimationComplete={onAnimationComplete}
+      deleteMessage={deleteMessage}
     >
       <ChatScrollProvider messagesCount={messages.length}>
         <Box

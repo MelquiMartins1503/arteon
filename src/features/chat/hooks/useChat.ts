@@ -10,6 +10,7 @@ export interface ChatConfig {
   isLoadingHistory: boolean;
   onSendMessage: (content: string, metadata?: MessageMetadata) => void;
   onStopGeneration: () => void;
+  deleteMessage: (messageId: string) => Promise<void>;
 }
 
 interface UseChatProps {
@@ -213,11 +214,44 @@ export function useChat({ chatId, apiEndpoint }: UseChatProps): ChatConfig {
     }
   };
 
+  const deleteMessage = async (messageId: string) => {
+    // Find message to get dbId
+    const targetMsg = messages.find((m) => m.id === messageId);
+    if (!targetMsg || !targetMsg.dbId) return;
+
+    // Optimistic update: Remove message and preceding user message
+    const targetIndex = messages.findIndex((m) => m.id === messageId);
+    if (targetIndex === -1) return;
+
+    let previousUserMsgId: string | undefined;
+    if (targetIndex > 0) {
+      const prevMsg = messages[targetIndex - 1];
+      if (prevMsg && prevMsg.role === "user") {
+        previousUserMsgId = prevMsg.id;
+      }
+    }
+
+    setMessages((prev) =>
+      prev.filter((m) => m.id !== messageId && m.id !== previousUserMsgId),
+    );
+
+    try {
+      await api.delete(`${apiEndpoint}/${targetMsg.dbId}`);
+    } catch (error) {
+      logger.error({ error }, "Failed to delete message");
+      // Rollback would go here, but for simplicity we'll just log
+      // In a real app we might want to restore state or show toast
+      // Refetch messages to restore sync state
+      await refetchMessages();
+    }
+  };
+
   return {
     messages,
     isLoading,
     isLoadingHistory,
     onSendMessage: handleSendMessage,
     onStopGeneration: handleStopGeneration,
+    deleteMessage,
   };
 }

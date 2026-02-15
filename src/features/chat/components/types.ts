@@ -54,6 +54,8 @@ export interface ChatConfig {
   onAnimationComplete?: (id: string) => void;
   // Controle de requisição
   onStopGeneration?: () => void;
+  // Controle de deleção
+  deleteMessage?: (messageId: string) => Promise<void>;
 }
 
 /**

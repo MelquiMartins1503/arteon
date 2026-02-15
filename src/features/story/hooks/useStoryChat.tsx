@@ -17,6 +17,7 @@ export function useStoryChat(storyUuid: string): ChatConfig {
     isLoadingHistory,
     onSendMessage,
     onStopGeneration,
+    deleteMessage,
   } = useChat({
     chatId: storyUuid,
     apiEndpoint: `/stories/${storyUuid}/chat`,
@@ -35,6 +36,7 @@ export function useStoryChat(storyUuid: string): ChatConfig {
     isLoadingHistory,
     onSendMessage,
     onStopGeneration,
+    deleteMessage,
     welcomeMessage: `Olá! Bem-vindo à fase de **Idealização**.
 
 Sou seu parceiro criativo nesta jornada. Vamos explorar juntos:

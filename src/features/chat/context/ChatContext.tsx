@@ -10,6 +10,7 @@ interface ChatContextValue {
   };
   onPromptClick?: (prompt: string) => void;
   onAnimationComplete?: (id: string) => void;
+  deleteMessage?: (messageId: string) => Promise<void>;
 }
 
 const ChatContext = createContext<ChatContextValue | undefined>(undefined);
@@ -25,6 +26,7 @@ export const ChatProvider = ({
   messageComponents,
   onPromptClick,
   onAnimationComplete,
+  deleteMessage,
 }: ChatProviderProps) => {
   const value = useMemo(
     () => ({
@@ -33,6 +35,7 @@ export const ChatProvider = ({
       messageComponents,
       onPromptClick,
       onAnimationComplete,
+      deleteMessage,
     }),
     [
       isLoading,
@@ -40,6 +43,7 @@ export const ChatProvider = ({
       messageComponents,
       onPromptClick,
       onAnimationComplete,
+      deleteMessage,
     ],
   );
 

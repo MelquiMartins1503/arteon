@@ -18,7 +18,6 @@ interface ChatMessageModelProps {
 
 export const ChatMessageModel = ({
   id,
-  dbId,
   content,
   shouldAnimate,
   suggestedPrompts,
@@ -71,7 +70,7 @@ export const ChatMessageModel = ({
         )}
 
         {showActions && !isInterruptedMessage && (
-          <ChatMessageActions content={content} />
+          <ChatMessageActions content={content} messageId={id} />
         )}
       </Box>
     </Box>
