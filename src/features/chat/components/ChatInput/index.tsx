@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowDown, ArrowUp } from "lucide-react";
+import { ArrowDown, ArrowUp, Square } from "lucide-react";
 import { memo, useCallback, useEffect, useState, useTransition } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { Box } from "@/components/Box";
@@ -124,7 +124,7 @@ const ChatInputInner: React.FC<ChatInputProps> = ({
     <Box
       alignItems="end"
       justifyContent="end"
-      className="relative w-10/12 max-md:w-full min-h-26.5 max-h-58.5 px-4 pb-4 h-auto shadow-[0px_-24px_18px_-4px_rgba(255,255,255,0.95)] dark:shadow-[0px_-24px_18px_-4px_rgba(27,27,27,0.95)]"
+      className="relative w-8/12 max-md:w-full min-h-26.5 max-h-58.5 px-4 pb-4 h-auto shadow-[0px_-24px_18px_-4px_rgba(255,255,255,0.95)] dark:shadow-[0px_-24px_18px_-4px_rgba(27,27,27,0.95)]"
     >
       <FormProvider {...methods}>
         <Box

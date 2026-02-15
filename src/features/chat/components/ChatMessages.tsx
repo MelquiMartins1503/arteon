@@ -25,7 +25,7 @@ export const ChatMessages = ({
       ref={scrollRef}
       onScroll={handleScroll}
       className={cn(
-        "overflow-hidden overflow-y-auto flex-1 px-6 mb-3 w-10/12 min-h-0 max-md:w-full scroll-smooth scrollbar-custom",
+        "overflow-hidden overflow-y-auto flex-1 px-6 mb-3 w-8/12 min-h-0 max-md:w-full scroll-smooth scrollbar-custom",
       )}
     >
       <Box gap={6} flexDirection="col" className="w-full min-h-full">

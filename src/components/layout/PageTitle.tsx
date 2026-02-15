@@ -63,7 +63,7 @@ export function PageTitle() {
   const displayTitle = storyUuid && storyTitle ? storyTitle : "Início";
 
   return (
-    <Typography size="3xl" weight="normal" className="mt-0!">
+    <Typography size="3xl" weight="normal" className="mt-0! max-md:text-2xl">
       {isLoading ? "Carregando..." : displayTitle}
     </Typography>
   );

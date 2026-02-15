@@ -1,5 +1,5 @@
 import { nanoid } from "nanoid";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import logger from "@/lib/logger";
 import type { ChatMessage, MessageMetadata } from "../components/types";
@@ -24,13 +24,48 @@ export function useChat({ chatId, apiEndpoint }: UseChatProps): ChatConfig {
 
   // Ref to hold the current request controller
   const abortControllerRef = useRef<AbortController | null>(null);
+  // Ref to prevent duplicate submissions
+  const isSubmittingRef = useRef(false);
 
-  // Fetch initial messages
-  useEffect(() => {
-    if (!chatId || !apiEndpoint) return;
+  /**
+   * Deduplicate messages based on dbId or content+role
+   * Prioritizes messages with dbId and 'saved' status
+   */
+  const deduplicateMessages = useCallback(
+    (msgs: ChatMessage[]): ChatMessage[] => {
+      const seen = new Map<string, ChatMessage>();
 
-    setIsLoadingHistory(true);
-    api
+      for (const msg of msgs) {
+        if (msg.dbId) {
+          // Prioritize messages with dbId from server
+          const key = `db-${msg.dbId}`;
+          const existing = seen.get(key);
+          if (!existing || msg.status === "saved") {
+            seen.set(key, msg);
+          }
+        } else {
+          // Fallback: use role + first 50 chars of content as key
+          const contentKey = msg.content.substring(0, 50).trim();
+          const key = `${msg.role}-${contentKey}`;
+          if (!seen.has(key)) {
+            seen.set(key, msg);
+          }
+        }
+      }
+
+      return Array.from(seen.values());
+    },
+    [],
+  );
+
+  /**
+   * Refetch messages from server and deduplicate
+   * Used for initial load and when user returns to page
+   */
+  const refetchMessages = useCallback(() => {
+    if (!chatId || !apiEndpoint) return Promise.resolve();
+
+    return api
       .get<{ messages?: unknown[] }>(apiEndpoint)
       .then((data) => {
         if (data.messages) {
@@ -52,19 +87,48 @@ export function useChat({ chatId, apiEndpoint }: UseChatProps): ChatConfig {
               status: "saved",
             }),
           );
-          setMessages(mappedMessages);
+          const deduplicated = deduplicateMessages(mappedMessages);
+          setMessages(deduplicated);
         }
       })
       .catch((err: unknown) =>
         logger.error({ err }, "Failed to load chat history"),
-      )
-      .finally(() => setIsLoadingHistory(false));
-  }, [chatId, apiEndpoint]);
+      );
+  }, [chatId, apiEndpoint, deduplicateMessages]);
+
+  // Fetch initial messages
+  useEffect(() => {
+    if (!chatId || !apiEndpoint) return;
+
+    setIsLoadingHistory(true);
+    refetchMessages().finally(() => setIsLoadingHistory(false));
+  }, [chatId, apiEndpoint, refetchMessages]);
+
+  // Page Visibility API: refetch messages when user returns to page
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      // Only refetch if page becomes visible and we're not currently loading
+      if (document.visibilityState === "visible" && !isLoading) {
+        refetchMessages();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [refetchMessages, isLoading]);
 
   const handleSendMessage = async (
     content: string,
     metadata?: MessageMetadata,
   ) => {
+    // Prevent duplicate submissions
+    if (isSubmittingRef.current) {
+      logger.info("Submission already in progress, ignoring duplicate");
+      return;
+    }
+
     // Abort previous request if exists
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -72,6 +136,7 @@ export function useChat({ chatId, apiEndpoint }: UseChatProps): ChatConfig {
 
     const controller = new AbortController();
     abortControllerRef.current = controller;
+    isSubmittingRef.current = true;
 
     // Optimistic update
     const userMsg: ChatMessage = {
@@ -121,13 +186,13 @@ export function useChat({ chatId, apiEndpoint }: UseChatProps): ChatConfig {
         logger.info("Request canceled");
 
         // Adicionar mensagem de interrupção localmente
-        // O backend já salvou ou está salvando - o reload sincronizará
+        // Status 'pending' será atualizado para 'saved' no próximo refetch
         const interruptedMsg: ChatMessage = {
           id: nanoid(),
           content: "*Geração interrompida pelo usuário.*",
           role: "model",
           shouldAnimate: false,
-          status: "saved", // Backend salvará, reload confirmará
+          status: "pending", // Será confirmado no próximo refetch do backend
         };
         setMessages((prev) => [...prev, interruptedMsg]);
       } else {
@@ -136,6 +201,7 @@ export function useChat({ chatId, apiEndpoint }: UseChatProps): ChatConfig {
     } finally {
       setIsLoading(false);
       abortControllerRef.current = null;
+      isSubmittingRef.current = false;
     }
   };
 

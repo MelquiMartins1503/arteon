@@ -15,7 +15,6 @@ export const ChatHistoryLoading = () => {
         gap={2}
         className="animate-pulse"
       >
-        <div className="h-12 w-12 rounded-full bg-brand-200 dark:bg-brand-800" />
         <Typography className="text-sm text-brand-600 dark:text-brand-400">
           Carregando histórico...
         </Typography>

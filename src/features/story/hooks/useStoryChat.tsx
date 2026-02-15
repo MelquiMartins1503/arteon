@@ -11,7 +11,13 @@ import { userMarkdownComponents } from "@/features/chat/markdown/userMarkdownCom
  * Configura o useChat para o endpoint específ ico de histórias
  */
 export function useStoryChat(storyUuid: string): ChatConfig {
-  const { messages, isLoading, onSendMessage, onStopGeneration } = useChat({
+  const {
+    messages,
+    isLoading,
+    isLoadingHistory,
+    onSendMessage,
+    onStopGeneration,
+  } = useChat({
     chatId: storyUuid,
     apiEndpoint: `/stories/${storyUuid}/chat`,
   });
@@ -26,6 +32,7 @@ export function useStoryChat(storyUuid: string): ChatConfig {
   return {
     messages,
     isLoading,
+    isLoadingHistory,
     onSendMessage,
     onStopGeneration,
     welcomeMessage: `Olá! Bem-vindo à fase de **Idealização**.
