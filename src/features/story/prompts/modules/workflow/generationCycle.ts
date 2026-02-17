@@ -65,7 +65,9 @@ Quando o modo pausa estiver ativo, você será informado através do prompt de s
 1. **Quantidade e Progressão:** Propor entre **5 e 8 seções** formando um arco narrativo completo.
 2. **Conteúdo de Cada Seção:**
    - **Título:** Evocativo e representativo.
-   - **Enredo:** 2–3 frases resumindo os acontecimentos.
+   - **Enredo:** 2–3 frases conceituais definindo foco temático, direção emocional e objetivos narrativos.
+   - **⚠️ IMPORTANTE:** Enredos devem ser guias conceituais, não roteiros. Foque em temas, atmosfera e progressão emocional.
+   - **PROIBIDO:** Pré-definir diálogos (mesmo resumidos), ações específicas ou eventos detalhados.
    - **Tempo e Local:** Específico e preciso.
 3. **Equilíbrio Narrativo:** Alternar entre ação intensa e desenvolvimento de personagem.
 4. **Conexão com o Contexto:** Considerar o último DECA e manter continuidade temática.

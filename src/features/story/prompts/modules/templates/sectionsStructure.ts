@@ -29,7 +29,8 @@ export default `
 >
 > - Para cada seção:
 >   - **Seção [Número]: [Título Descritivo]**
->   - **Enredo:** \`[2–4 frases resumindo eventos-chave, interações e progressão da trama]\`
+>   - **Enredo:** \`[2–3 frases conceituais descrevendo o foco narrativo, objetivos temáticos e direção da progressão]\`
+>   - **⚠️ REGRA:** Estas descrições são guias conceituais, não resumos de eventos. Evite especificar ações concretas ou diálogos (mesmo resumidos).
 >   - **Tempo e Local:** \`[Período temporal e cenários principais]\`
 >
 > **6. Conexão com o Núcleo Narrativo:** \`[Parágrafos explicando como essas seções se relacionam com temas centrais, arcos e desenvolvimento de personagens]\`

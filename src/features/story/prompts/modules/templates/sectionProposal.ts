@@ -40,7 +40,10 @@ export default `
 > - Divisão recomendada: **4 a 14 partes** (quanto mais partes, mais rico o conteúdo final).
 > - Para cada parte:
 >   - **Parte [Número]: [Título Descritivo]**
->     - **Enredo:** \`[3–6 frases descritivas sobre eventos, interações, diálogos e atmosfera]\`
+>     - **Enredo:** \`[2–4 frases conceituais descrevendo a direção narrativa, focos temáticos e progressão emocional/situacional]\`
+>     - **⚠️ REGRA CRÍTICA:** O enredo deve definir **APENAS a direção e foco conceitual**, não eventos específicos, falas ou ações concretas.
+>     - **PROIBIDO:** Pré-definir diálogos (mesmo resumidos), descrever ações específicas, narrar eventos detalhados, ou especificar pensamentos/sensações exatas dos personagens.
+>     - **PERMITIDO:** Descrever objetivos da parte, tensões a explorar, temas a desenvolver, atmosfera desejada, dinâmicas de poder, progressão emocional.
 >     - **Objetivo:** \`[2–4 frases explicando o propósito narrativo, temático e emocional]\`
 >
 > **7. Conexão com o Núcleo Narrativo:** \`[Parágrafos explicando conexões com temas centrais]\`

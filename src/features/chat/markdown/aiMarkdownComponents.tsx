@@ -10,7 +10,7 @@ export const aiMarkdownComponents: Components = {
     <p
       {...props}
       className={cn(
-        "mb-2 leading-7 last:mb-0 text-brand-900 dark:text-brand-100",
+        "mb-2 text-[17px] leading-7 last:mb-0 text-brand-900 dark:text-brand-100",
       )}
     />
   ),
@@ -36,7 +36,7 @@ export const aiMarkdownComponents: Components = {
   h1: ({ node, className, ...props }) => (
     <h1
       {...props}
-      className={cn("mt-8 mb-4 text-2xl tracking-tight scroll-m-20 first:mt-0")}
+      className={cn("mt-8 mb-4 text-3xl tracking-tight scroll-m-20 first:mt-0")}
     />
   ),
 
@@ -44,7 +44,7 @@ export const aiMarkdownComponents: Components = {
     <h2
       {...props}
       className={cn(
-        "pb-2 mt-8 mb-0 text-xl font-semibold tracking-tight scroll-m-20 first:mt-0",
+        "pb-2 mt-8 mb-0 text-2xl font-semibold tracking-tight scroll-m-20 first:mt-0",
       )}
     />
   ),
@@ -53,7 +53,7 @@ export const aiMarkdownComponents: Components = {
     <h3
       {...props}
       className={cn(
-        "mt-6 mb-2 text-base font-semibold tracking-tight scroll-m-20 first:mt-0",
+        "mt-6 mb-2 text-lg font-semibold tracking-tight scroll-m-20 first:mt-0",
       )}
     />
   ),
@@ -135,7 +135,7 @@ export const aiMarkdownComponents: Components = {
       <code
         {...props}
         className={cn(
-          "relative rounded bg-brand-100 dark:bg-brand-800/50 px-[0.4rem] py-[0.2rem] font-mono text-sm font-semibold text-brand-900 dark:text-brand-200",
+          "relative rounded bg-brand-100 dark:bg-brand-800/50 px-[0.4rem] py-[0.2rem] font-mono text-base font-semibold text-brand-900 dark:text-brand-200",
           className,
         )}
       >
