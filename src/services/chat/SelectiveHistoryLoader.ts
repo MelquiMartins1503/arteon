@@ -54,7 +54,7 @@ export class SelectiveHistoryLoader {
       messageTypes: [
         { type: "DECA", limit: 1 }, // Último DECA
         { type: "GENERAL", limit: 30 }, // Últimas 30 conversas
-        { type: "SECTION_CONTENT", limit: 20 }, // Últimas 10 seções
+        { type: "SECTION_CONTENT", limit: 40 }, // Últimas 20 seções
         { type: "SECTION_PROPOSAL", limit: 1 }, // Última proposta
       ],
       includeImportant: true,
@@ -65,7 +65,7 @@ export class SelectiveHistoryLoader {
       messageTypes: [
         { type: "DECA", limit: 1 }, // Último DECA
         { type: "GENERAL", limit: 30 }, // Últimas 30 conversas
-        { type: "SECTION_CONTENT", limit: 20 }, // Últimas 10 seções
+        { type: "SECTION_CONTENT", limit: 40 }, // Últimas 40 seções
         { type: "SECTION_PROPOSAL", limit: 3 }, // Últimas 3 propostas
       ],
       includeImportant: true,
@@ -98,7 +98,7 @@ export class SelectiveHistoryLoader {
     PAUSAR_NARRATIVA: {
       messageTypes: [
         { type: "DECA", limit: 20 }, // Últimos 10 DECA
-        { type: "GENERAL", limit: 30 }, // Últimas 30 conversas
+        { type: "GENERAL", limit: 50 }, // Últimas 30 conversas
         { type: "SECTION_CONTENT", limit: 60 }, // Últimas 60 seções
       ],
     },
