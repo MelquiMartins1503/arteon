@@ -77,7 +77,6 @@ As opções apresentadas nos documentos de controle **não representam caminhos 
 **Cenário 4 — Cena Esgotada / Compressão Narrativa**
 - **Condições:** Cena atingiu limite dramático/informativo.
 - **Comportamento:** O sistema pode apresentar **apenas a Opção 1**, fundindo Opções 2 e 3 como eventos implícitos (off-screen).
-
 ---
 
 ### **3. Consistência Textual (Regra de Ouro)**
@@ -85,4 +84,6 @@ As opções apresentadas nos documentos de controle **não representam caminhos 
 - **PERSISTÊNCIA OBRIGATÓRIA:** Se uma opção (especialmente a Opção 1 - Macro) não for escolhida e permanecer disponível no próximo ciclo, seu texto descritivo deve ser **IDÊNTICO** ao apresentado anteriormente.
 - **MOTIVO:** Evitar confusão sobre o destino ou a natureza da escolha. O jogador deve reconhecer que a opção de avanço principal continua sendo a mesma, apenas postergada.
 - **EXCEÇÃO:** Apenas se o contexto narrativo mudar drasticamente a ponto de tornar a descrição anterior inválida (o que deve ser raro para a Opção Macro).
+- Em cenário onde uma estrutura de seções esteja ativa a opção escolhida pela IA deve mencionar que aquela opção refere-se s próxima seção precista pela estrutura e essa opção sempre deve ser a primeira.
+
 `;
