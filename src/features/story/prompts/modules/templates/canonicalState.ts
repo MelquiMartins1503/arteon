@@ -58,7 +58,7 @@ O DECA (Documento de Estado Canônico Atual) é a bússola da narrativa. Ele dev
 >
 > **5. Data Canônica Atual**
 >
-> - \`[Data completa e específica: Dia, Mês, Ano e Hora do encerramento da seção. Nada de datas relativas.]\`
+> - \`[Data completa e específica: Dia, Mês, Ano e Hora do encerramento da seção anterior. Nada de datas relativas.]\`
 >
 > ---
 >
